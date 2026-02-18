@@ -5,6 +5,7 @@ from app.models.ride import Ride, RideStatus, PaymentStatus
 from app.models.transaction import Transaction, DriverPayout, TransactionStatus, PaymentGateway, PayoutStatus
 from app.models.verification import VerificationSession
 from app.models.rating import Rating
+from app.models.location import Location, LocationHistory, Coordinates
 
 __all__ = [
     # User models
@@ -27,4 +28,8 @@ __all__ = [
     'VerificationSession',
     # Rating models
     'Rating',
+    # Location models
+    'Location',
+    'LocationHistory',
+    'Coordinates',
 ]

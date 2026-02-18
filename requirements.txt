@@ -25,9 +25,12 @@ pytest==8.3.4
 pytest-asyncio==0.24.0
 hypothesis==6.122.4
 httpx==0.28.1
+fakeredis==2.26.2
 
 # External Services - Payment Gateways
 razorpay==1.4.2
+# Note: Paytm SDK not available as pip package
+# Paytm integration uses REST API directly
 
 # External Services - SMS
 twilio==9.4.0
@@ -39,3 +42,7 @@ googlemaps==4.10.0
 python-dotenv==1.0.1
 pydantic==2.12.5
 pydantic-settings==2.7.1
+email-validator==2.2.0
+
+# PDF Generation
+reportlab==4.0.7

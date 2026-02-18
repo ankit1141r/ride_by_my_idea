@@ -2,15 +2,23 @@
 
 ## Introduction
 
-This document specifies the requirements for a web-first ride-hailing platform focused on intra-city transportation within Indore. The platform connects riders seeking immediate transportation with drivers who provide ride services. This represents Phase 1 of a larger multi-purpose transportation platform, establishing the foundation for future features including planned trip sharing and peer-to-peer parcel delivery.
+This document specifies the requirements for a web-first ride-hailing platform focused on intra-city transportation within Indore and its surrounding areas. The platform connects riders seeking immediate or scheduled transportation with drivers who provide ride services. The platform also supports peer-to-peer parcel delivery services. This represents an enhanced version of the platform, expanding beyond immediate rides to include scheduled trips, parcel delivery, and extended geographical coverage.
 
 ## Glossary
 
 - **Rider**: A user who requests and receives transportation services
 - **Driver**: A verified user who provides transportation services using their vehicle
 - **Ride_Request**: A rider's request for immediate transportation from a pickup location to a destination
+- **Scheduled_Ride**: A ride request scheduled for a future date and time (up to 7 days in advance)
 - **Ride_Match**: The system's assignment of a driver to a ride request
 - **Fare**: The calculated cost for a ride based on distance and other factors
+- **Parcel**: An item to be delivered from a sender to a recipient via the platform
+- **Parcel_Delivery**: A delivery service request where a driver transports a parcel between two locations
+- **Sender**: A user who requests parcel delivery services
+- **Recipient**: A user who receives a delivered parcel
+- **Parcel_Size**: Classification of parcel dimensions (small, medium, large)
+- **Service_Area**: The geographical region where the platform operates (Indore city + 20km radius)
+- **Extended_Area**: The region beyond Indore city limits but within the 20km outer radius
 - **Payment_Gateway**: External service (Razorpay, Paytm) that processes financial transactions
 - **Verification_System**: The subsystem that validates user identity through phone and ID verification
 - **Ride_Session**: An active ride from acceptance through completion
@@ -39,12 +47,13 @@ This document specifies the requirements for a web-first ride-hailing platform f
 
 #### Acceptance Criteria
 
-1. WHEN a verified rider specifies a pickup location and destination within Indore, THE Platform SHALL create a ride request
+1. WHEN a verified rider specifies a pickup location and destination within the Service_Area, THE Platform SHALL create a ride request
 2. WHEN creating a ride request, THE Platform SHALL calculate and display the estimated fare before confirmation
 3. WHEN a rider confirms the ride request, THE Platform SHALL broadcast the request to available drivers in the pickup area
-4. IF either pickup or destination is outside Indore city limits, THEN THE Platform SHALL reject the ride request with a clear error message
+4. IF either pickup or destination is outside the Service_Area (Indore + 20km radius), THEN THE Platform SHALL reject the ride request with a clear error message
 5. WHEN a ride request is created, THE Platform SHALL estimate arrival time based on available drivers
 6. THE Platform SHALL allow riders to specify pickup location using map selection or address search
+7. WHEN either pickup or destination is in the Extended_Area, THE Platform SHALL clearly indicate this to the rider before confirmation
 
 ### Requirement 3: Driver Ride Management
 
@@ -79,11 +88,12 @@ This document specifies the requirements for a web-first ride-hailing platform f
 #### Acceptance Criteria
 
 1. WHEN a ride request is created, THE Platform SHALL calculate fare based on straight-line distance between pickup and destination
-2. THE Platform SHALL apply a base fare of ₹30 plus ₹12 per kilometer
-3. WHEN displaying estimated fare, THE Platform SHALL show the breakdown of base fare and distance charges
-4. THE Platform SHALL calculate the final fare after ride completion based on actual distance traveled
-5. IF the actual fare differs from estimated fare by more than 20%, THEN THE Platform SHALL charge the estimated fare
-6. WHERE surge pricing is active, THE Platform SHALL apply a multiplier to the base fare calculation and display it clearly to the rider
+2. THE Platform SHALL apply a base fare of ₹30 plus ₹12 per kilometer for distances up to 25km
+3. WHERE the distance exceeds 25km, THE Platform SHALL apply ₹10 per kilometer for the distance beyond 25km
+4. WHEN displaying estimated fare, THE Platform SHALL show the breakdown of base fare and distance charges
+5. THE Platform SHALL calculate the final fare after ride completion based on actual distance traveled
+6. IF the actual fare differs from estimated fare by more than 20%, THEN THE Platform SHALL charge the estimated fare
+7. WHERE surge pricing is active, THE Platform SHALL apply a multiplier to the base fare calculation and display it clearly to the rider
 
 ### Requirement 6: Payment Processing
 
@@ -189,9 +199,10 @@ This document specifies the requirements for a web-first ride-hailing platform f
 2. WHEN location permission is granted, THE Platform SHALL retrieve the user's current GPS coordinates
 3. THE Platform SHALL display the user's location on an interactive map
 4. THE Platform SHALL allow users to manually adjust their pickup location by dragging a map pin
-5. THE Platform SHALL provide address search functionality that returns valid locations within Indore
-6. WHEN a user searches for an address, THE Platform SHALL validate that the address exists and is within service boundaries
+5. THE Platform SHALL provide address search functionality that returns valid locations within the Service_Area
+6. WHEN a user searches for an address, THE Platform SHALL validate that the address exists and is within service boundaries (Indore + 20km radius)
 7. THE Platform SHALL update driver location continuously while they are available or on an active ride
+8. WHEN displaying locations in the Extended_Area, THE Platform SHALL visually distinguish them from city center locations
 
 ### Requirement 14: Notification System
 
@@ -221,10 +232,76 @@ This document specifies the requirements for a web-first ride-hailing platform f
 6. WHEN a cancellation occurs, THE Platform SHALL notify the other party immediately
 7. THE Platform SHALL not allow cancellations after the ride has started
 
+### Requirement 16: Scheduled Rides
+
+**User Story:** As a rider, I want to schedule rides in advance, so that I can plan my transportation needs ahead of time.
+
+#### Acceptance Criteria
+
+1. THE Platform SHALL allow riders to schedule rides up to 7 days in advance
+2. WHEN scheduling a ride, THE Platform SHALL require pickup location, destination, and scheduled pickup time
+3. WHEN a scheduled ride is created, THE Platform SHALL calculate and display the estimated fare
+4. THE Platform SHALL store scheduled rides with status "scheduled" until the matching window
+5. WHEN the scheduled pickup time is 30 minutes away, THE Platform SHALL begin matching the ride with available drivers
+6. THE Platform SHALL allow riders to modify scheduled rides up to 2 hours before the scheduled pickup time
+7. THE Platform SHALL allow riders to cancel scheduled rides up to 1 hour before the scheduled pickup time without penalty
+8. IF a scheduled ride is cancelled less than 1 hour before pickup, THEN THE Platform SHALL charge a cancellation fee of ₹30
+9. WHEN a scheduled ride is 15 minutes away, THE Platform SHALL send reminder notifications to the rider
+10. WHEN a driver is matched to a scheduled ride, THE Platform SHALL send a reminder notification to the driver 15 minutes before pickup time
+11. IF no driver accepts a scheduled ride within 15 minutes of the scheduled time, THEN THE Platform SHALL notify the rider and offer to reschedule or cancel
+12. THE Platform SHALL display scheduled rides separately from immediate ride requests in the rider's dashboard
+
+### Requirement 17: Parcel Delivery Service
+
+**User Story:** As a user, I want to send parcels to other locations using the platform, so that I can deliver items without traveling myself.
+
+#### Acceptance Criteria
+
+1. THE Platform SHALL allow verified users to request parcel delivery services
+2. WHEN creating a parcel delivery request, THE Platform SHALL require pickup location, recipient location, and parcel details (size, weight, description)
+3. THE Platform SHALL support three parcel sizes: small (up to 5kg), medium (5-15kg), and large (15-30kg)
+4. WHEN a parcel delivery is requested, THE Platform SHALL calculate delivery fare based on distance and parcel size
+5. THE Platform SHALL apply a base fare of ₹40 for small parcels, ₹60 for medium parcels, and ₹80 for large parcels, plus distance charges
+6. WHEN calculating parcel delivery fare, THE Platform SHALL apply ₹8 per kilometer for small parcels, ₹10 per kilometer for medium parcels, and ₹12 per kilometer for large parcels
+7. WHEN a driver accepts a parcel delivery, THE Platform SHALL require the driver to confirm pickup with a photo of the parcel
+8. THE Platform SHALL allow the sender to add a signature requirement for parcel pickup
+9. WHEN a driver picks up a parcel, THE Platform SHALL update the delivery status to "in_transit"
+10. WHEN a driver arrives at the recipient location, THE Platform SHALL require the recipient to confirm delivery with a signature or photo
+11. THE Platform SHALL track parcel location in real-time similar to ride tracking
+12. WHEN a parcel delivery is completed, THE Platform SHALL notify both sender and recipient
+13. THE Platform SHALL provide estimated delivery time based on distance and current traffic conditions
+14. IF a parcel exceeds 30kg, THEN THE Platform SHALL reject the delivery request
+15. THE Platform SHALL allow senders to add special handling instructions (fragile, urgent, etc.)
+16. WHEN displaying parcel delivery requests to drivers, THE Platform SHALL show parcel size, weight, and special instructions
+17. THE Platform SHALL maintain a separate history for parcel deliveries distinct from ride history
+
+### Requirement 18: Geographical Scope Expansion
+
+**User Story:** As a user, I want to use the platform beyond Indore city limits, so that I can travel to and from surrounding areas.
+
+#### Acceptance Criteria
+
+1. THE Platform SHALL support service area extending 20km beyond Indore city limits in all directions
+2. WHEN validating locations, THE Platform SHALL accept any location within the expanded Service_Area
+3. THE Platform SHALL clearly indicate to users when a pickup or destination is in the Extended_Area versus city center
+4. WHEN calculating fares for rides involving Extended_Area locations, THE Platform SHALL account for longer distances
+5. WHEN matching drivers for Extended_Area pickups, THE Platform SHALL use an initial search radius of 8km instead of 5km
+6. IF no driver accepts an Extended_Area ride within 3 minutes, THEN THE Platform SHALL expand the search radius by 3km
+7. THE Platform SHALL display a visual boundary on the map showing the Service_Area limits
+8. WHEN a user attempts to select a location outside the Service_Area, THE Platform SHALL display an error message indicating the location is not serviceable
+9. THE Platform SHALL update fare estimates to reflect the increased distance potential in the Extended_Area
+10. THE Platform SHALL allow drivers to set preferences for accepting Extended_Area rides
+11. WHERE a driver has disabled Extended_Area rides, THE Platform SHALL exclude them from matching for rides with Extended_Area locations
+12. THE Platform SHALL track and display to drivers the percentage of their rides that involve Extended_Area locations
+
 ## Notes
 
 - All monetary values are in Indian Rupees (₹)
-- Distance calculations should account for Indore's road network
-- The system should be designed to scale beyond Indore in future phases
+- Distance calculations should account for Indore's road network and surrounding areas
+- The system should be designed to scale beyond the current service area in future phases
 - Integration with payment gateways should follow PCI DSS compliance standards
 - Location data should be handled in compliance with privacy regulations
+- Parcel delivery insurance and liability terms should be clearly communicated to users
+- Scheduled rides should be stored with timezone information to handle daylight saving time changes
+- The 20km radius from Indore city limits creates an approximate circular service area
+- Extended area rides may have longer wait times due to lower driver density

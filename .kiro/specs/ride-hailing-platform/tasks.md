@@ -24,7 +24,7 @@ The implementation follows a layered approach: data models → core services →
   - Create environment configuration management
   - _Requirements: All (foundational)_
 
-
+leta
 - [-] 2. Data models and database schemas
   - [x] 2.1 Create User model with SQLAlchemy ORM
     - Define User table with fields: userId, phoneNumber, name, email, userType, createdAt
@@ -77,7 +77,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 5: Credential encryption**
     - **Validates: Requirements 1.1, 1.5, 1.7, 10.1**
   
-  - [ ] 3.3 Implement phone verification flow
+  - [x] 3.3 Implement phone verification flow
     - Create POST /api/auth/verify/send endpoint to send OTP
     - Integrate with SMS gateway (Twilio)
     - Generate 6-digit verification code
@@ -91,7 +91,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 3: Verification attempt limiting**
     - **Validates: Requirements 1.2, 1.3, 1.4**
   
-  - [ ] 3.5 Implement login and JWT token generation
+  - [x] 3.5 Implement login and JWT token generation
     - Create POST /api/auth/login endpoint
     - Validate credentials against hashed passwords
     - Generate JWT tokens with user claims
@@ -102,24 +102,24 @@ The implementation follows a layered approach: data models → core services →
     - **Property 6: Authentication session creation**
     - **Validates: Requirements 1.8**
   
-  - [ ] 3.7 Implement ID document verification for drivers
+  - [x] 3.7 Implement ID document verification for drivers
     - Create POST /api/auth/driver/verify-id endpoint
     - Accept document upload (image file)
     - Store document metadata
     - Implement basic validation checks
     - _Requirements: 1.6_
 
-- [ ] 4. Checkpoint - Authentication complete
+- [x] 4. Checkpoint - Authentication complete
   - Ensure all authentication tests pass, ask the user if questions arise.
 
 
 - [ ] 5. Location Service implementation
-  - [ ] 5.1 Create Location data model for MongoDB
+  - [x] 5.1 Create Location data model for MongoDB
     - Define Location schema with latitude, longitude, address
     - Create indexes for geospatial queries
     - _Requirements: 2.1, 8.1, 13.5_
   
-  - [ ] 5.2 Implement address validation and boundary checking
+  - [x] 5.2 Implement address validation and boundary checking
     - Create function to validate Indore city boundaries
     - Define boundary coordinates (lat: 22.6-22.8, lon: 75.7-75.9)
     - Implement isWithinServiceArea function
@@ -130,12 +130,12 @@ The implementation follows a layered approach: data models → core services →
     - **Property 57: Address validation**
     - **Validates: Requirements 2.4, 13.6**
   
-  - [ ] 5.4 Implement distance calculation
+  - [x] 5.4 Implement distance calculation
     - Create calculateDistance function using Haversine formula
     - Return distance in kilometers
     - _Requirements: 5.1, 5.2_
   
-  - [ ] 5.5 Integrate with Google Maps API
+  - [x] 5.5 Integrate with Google Maps API
     - Set up Google Maps client
     - Implement address search functionality
     - Implement route calculation with polyline
@@ -145,13 +145,13 @@ The implementation follows a layered approach: data models → core services →
     - **Property 56: Address search boundary filtering**
     - **Validates: Requirements 13.5**
   
-  - [ ] 5.7 Implement driver location tracking
+  - [x] 5.7 Implement driver location tracking
     - Create updateDriverLocation function to store in MongoDB
     - Create getDriverLocation function to retrieve latest location
     - Implement location update endpoint POST /api/location/driver
     - _Requirements: 4.4, 8.1, 8.2_
   
-  - [ ] 5.8 Implement route deviation detection
+  - [x] 5.8 Implement route deviation detection
     - Create detectRouteDeviation function
     - Calculate distance from current location to expected route
     - Return alert if deviation exceeds threshold (500m)
@@ -162,9 +162,9 @@ The implementation follows a layered approach: data models → core services →
     - **Validates: Requirements 11.4**
 
 - [ ] 6. Fare Calculation Service implementation
-  - [ ] 6.1 Implement fare calculation logic
+  - [x] 6.1 Implement fare calculation logic
     - Create calculateEstimatedFare function
-    - Apply formula: (₹30 + distance_km * ₹12) * surge_multiplier
+    - Apply formula: (₹20 + distance_km * ₹8) * surge_multiplier
     - Return FareCalculation with breakdown
     - Create calculateFinalFare function for completed rides
     - Implement fare protection (20% cap)
@@ -183,7 +183,7 @@ The implementation follows a layered approach: data models → core services →
     - _Requirements: 5.1, 5.2, 5.5_
 
 - [ ] 7. Ride Management Service implementation
-  - [ ] 7.1 Implement ride request creation
+  - [x] 7.1 Implement ride request creation
     - Create POST /api/rides/request endpoint
     - Validate pickup and destination within boundaries
     - Calculate estimated fare
@@ -197,14 +197,14 @@ The implementation follows a layered approach: data models → core services →
     - **Property 9: Ride request completeness**
     - **Validates: Requirements 2.1, 2.2, 2.4, 2.5**
   
-  - [ ] 7.3 Implement ride lifecycle management
+  - [x] 7.3 Implement ride lifecycle management
     - Create functions for status transitions: matched → in_progress → completed
     - Implement startRide function
     - Implement completeRide function with final fare calculation
     - Update ride status in database
     - _Requirements: 3.3, 5.4_
   
-  - [ ] 7.4 Implement ride history endpoints
+  - [x] 7.4 Implement ride history endpoints
     - Create GET /api/rides/history endpoint
     - Implement filtering by date range
     - Sort rides in reverse chronological order
@@ -219,7 +219,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 45: Date range filtering**
     - **Validates: Requirements 9.1, 9.2, 9.3, 9.4, 9.5**
   
-  - [ ] 7.6 Implement cancellation logic
+  - [x] 7.6 Implement cancellation logic
     - Create POST /api/rides/{rideId}/cancel endpoint
     - Check ride status to determine if cancellation allowed
     - Calculate cancellation fee based on ride status
@@ -233,12 +233,12 @@ The implementation follows a layered approach: data models → core services →
     - **Property 70: In-progress cancellation restriction**
     - **Validates: Requirements 15.1, 15.2, 15.7**
 
-- [ ] 8. Checkpoint - Core ride management complete
+- [x] 8. Checkpoint - Core ride management complete
   - Ensure all tests pass, ask the user if questions arise.
 
 
 - [ ] 9. Ride Matching Engine implementation
-  - [ ] 9.1 Implement driver availability management
+  - [x] 9.1 Implement driver availability management
     - Create POST /api/drivers/availability endpoint
     - Implement setDriverAvailable function (stores in Redis)
     - Implement setDriverUnavailable function
@@ -250,7 +250,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 22: Availability-based matching inclusion**
     - **Validates: Requirements 3.7, 12.1, 12.2, 12.3**
   
-  - [ ] 9.3 Implement driver search by proximity
+  - [x] 9.3 Implement driver search by proximity
     - Create getAvailableDrivers function
     - Query MongoDB for drivers within radius of pickup location
     - Filter by availability status from Redis
@@ -262,18 +262,18 @@ The implementation follows a layered approach: data models → core services →
     - **Property 18: Distance-based prioritization**
     - **Validates: Requirements 3.1, 4.3**
   
-  - [ ] 9.5 Implement ride broadcasting logic
+  - [x] 9.5 Implement ride broadcasting logic
     - Create broadcastRideRequest function
     - Find available drivers within initial 5km radius
     - Store broadcast details in Redis
     - Return list of notified drivers
     - _Requirements: 2.3, 3.1_
   
-  - [ ]* 9.6 Write property test for broadcasting
+  - [x] 9.6 Write property test for broadcasting
     - **Property 10: Ride request broadcasting**
     - **Validates: Requirements 2.3**
   
-  - [ ] 9.7 Implement ride matching algorithm
+  - [x] 9.7 Implement ride matching algorithm
     - Create matchRide function
     - Handle concurrent acceptances using Redis locks
     - Select closest driver when multiple accept
@@ -287,7 +287,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 23: Automatic status transitions** (driver to busy)
     - **Validates: Requirements 3.3, 3.6, 4.1**
   
-  - [ ] 9.9 Implement search radius expansion
+  - [x] 9.9 Implement search radius expansion
     - Create expandSearchRadius function
     - Trigger after 2-minute timeout
     - Increase radius by 2km
@@ -298,7 +298,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 15: Search radius expansion**
     - **Validates: Requirements 3.5**
   
-  - [ ] 9.11 Implement driver rejection handling
+  - [x] 9.11 Implement driver rejection handling
     - Create rejectRide function
     - Keep ride request active for other drivers
     - Continue broadcasting
@@ -308,7 +308,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 14: Continued broadcasting after rejection**
     - **Validates: Requirements 3.4**
   
-  - [ ] 9.13 Implement driver cancellation handling
+  - [x] 9.13 Implement driver cancellation handling
     - Create handleDriverCancellation function
     - Track cancellation count in driver profile
     - Suspend driver if count exceeds 3 in a day
@@ -323,14 +323,14 @@ The implementation follows a layered approach: data models → core services →
     - **Validates: Requirements 4.5, 15.3, 15.4, 15.5**
 
 - [ ] 10. WebSocket implementation for real-time features
-  - [ ] 10.1 Set up WebSocket connection management
+  - [x] 10.1 Set up WebSocket connection management
     - Create WebSocket endpoint /ws
     - Implement connection authentication via JWT
     - Maintain active connections in memory (connection pool)
     - Handle connection lifecycle (connect, disconnect, reconnect)
     - _Requirements: 8.1, 8.2_
   
-  - [ ] 10.2 Implement ride request broadcasting via WebSocket
+  - [x] 10.2 Implement ride request broadcasting via WebSocket
     - Send ride request notifications to connected drivers
     - Include pickup, destination, estimated fare
     - _Requirements: 2.3, 3.2_
@@ -339,7 +339,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 12: Notification content completeness**
     - **Validates: Requirements 3.2**
   
-  - [ ] 10.4 Implement driver acceptance/rejection via WebSocket
+  - [x] 10.4 Implement driver acceptance/rejection via WebSocket
     - Handle driver accept/reject messages
     - Call matching engine functions
     - Broadcast match confirmation to rider
@@ -350,7 +350,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 17: Notification cancellation after match**
     - **Validates: Requirements 4.2**
   
-  - [ ] 10.6 Implement real-time location updates
+  - [x] 10.6 Implement real-time location updates
     - Accept location updates from drivers every 10 seconds
     - Store in MongoDB
     - Broadcast to matched rider
@@ -361,7 +361,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 38: Location sharing on match**
     - **Validates: Requirements 4.4, 8.1**
   
-  - [ ] 10.8 Implement proximity notifications
+  - [x] 10.8 Implement proximity notifications
     - Monitor driver location during driver_arriving status
     - Send notification when within 500m of pickup
     - _Requirements: 8.4_
@@ -370,12 +370,12 @@ The implementation follows a layered approach: data models → core services →
     - **Property 40: Proximity notification**
     - **Validates: Requirements 8.4**
 
-- [ ] 11. Checkpoint - Real-time features complete
+- [x] 11. Checkpoint - Real-time features complete
   - Ensure all WebSocket tests pass, ask the user if questions arise.
 
 
 - [ ] 12. Payment Service implementation
-  - [ ] 12.1 Set up payment gateway integrations
+  - [x] 12.1 Set up payment gateway integrations
     - Install Razorpay and Paytm Python SDKs
     - Configure API keys and credentials
     - Create PaymentGateway abstraction interface
@@ -383,7 +383,7 @@ The implementation follows a layered approach: data models → core services →
     - Implement PaytmGateway class
     - _Requirements: 6.2_
   
-  - [ ] 12.2 Implement payment processing
+  - [x] 12.2 Implement payment processing
     - Create processPayment function
     - Trigger payment on ride completion
     - Implement retry logic (up to 2 retries with exponential backoff)
@@ -404,7 +404,7 @@ The implementation follows a layered approach: data models → core services →
     - Test transaction logging
     - _Requirements: 6.3, 6.4, 6.7_
   
-  - [ ] 12.5 Implement driver payout scheduling
+  - [x] 12.5 Implement driver payout scheduling
     - Create scheduleDriverPayout function
     - Schedule payouts within 24 hours of ride completion
     - Store payout records with status
@@ -415,14 +415,14 @@ The implementation follows a layered approach: data models → core services →
     - **Property 31: Driver payout scheduling**
     - **Validates: Requirements 6.6**
   
-  - [ ] 12.7 Create payment endpoints
+  - [x] 12.7 Create payment endpoints
     - Create POST /api/payments/process endpoint
     - Create GET /api/payments/history endpoint
     - Create POST /api/payments/retry endpoint for failed payments
     - _Requirements: 6.1, 6.4_
 
 - [ ] 13. Rating and Review System implementation
-  - [ ] 13.1 Implement rating submission
+  - [x] 13.1 Implement rating submission
     - Create POST /api/ratings endpoint
     - Validate rating is between 1-5 stars
     - Validate review text is max 500 characters
@@ -436,7 +436,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 34: Review length validation**
     - **Validates: Requirements 7.1, 7.2, 7.3**
   
-  - [ ] 13.3 Implement average rating calculation
+  - [x] 13.3 Implement average rating calculation
     - Create calculateAverageRating function
     - Calculate from last 100 rides (or all if fewer)
     - Update user's averageRating field
@@ -447,7 +447,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 35: Average rating calculation**
     - **Validates: Requirements 7.4**
   
-  - [ ] 13.5 Implement low rating flagging
+  - [x] 13.5 Implement low rating flagging
     - Create checkDriverRating function
     - Flag driver account if average falls below 3.5
     - Store flag in driver profile
@@ -457,7 +457,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 36: Low rating flagging**
     - **Validates: Requirements 7.5**
   
-  - [ ] 13.7 Implement rating display
+  - [x] 13.7 Implement rating display
     - Include driver rating in ride request response
     - Include rating and total rides in driver profile
     - _Requirements: 7.6, 7.7_
@@ -467,7 +467,7 @@ The implementation follows a layered approach: data models → core services →
     - **Validates: Requirements 7.6, 7.7**
 
 - [ ] 14. Vehicle Management implementation
-  - [ ] 14.1 Implement vehicle registration
+  - [x] 14.1 Implement vehicle registration
     - Create POST /api/drivers/vehicle endpoint
     - Validate required fields: registration number, make, model, color
     - Validate insurance expiry is at least 30 days in future
@@ -478,7 +478,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 47: Insurance validity requirement**
     - **Validates: Requirements 10.3**
   
-  - [ ] 14.3 Implement vehicle details in notifications
+  - [x] 14.3 Implement vehicle details in notifications
     - Include vehicle info in ride match notifications
     - _Requirements: 10.4_
   
@@ -486,7 +486,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 48: Vehicle details in match notification**
     - **Validates: Requirements 10.4**
   
-  - [ ] 14.5 Implement insurance expiry monitoring
+  - [x] 14.5 Implement insurance expiry monitoring
     - Create background job to check insurance expiry daily
     - Suspend drivers with expired insurance
     - _Requirements: 10.5_
@@ -495,7 +495,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 49: Insurance expiry suspension**
     - **Validates: Requirements 10.5**
   
-  - [ ] 14.7 Implement vehicle update with re-verification
+  - [x] 14.7 Implement vehicle update with re-verification
     - Create PUT /api/drivers/vehicle endpoint
     - Mark vehicle as unverified on update
     - Require re-verification process
@@ -505,12 +505,12 @@ The implementation follows a layered approach: data models → core services →
     - **Property 50: Vehicle update re-verification**
     - **Validates: Requirements 10.6**
 
-- [ ] 15. Checkpoint - Payment and vehicle management complete
+- [~] 15. Checkpoint - Payment and vehicle management complete
   - Ensure all tests pass, ask the user if questions arise.
 
 
 - [ ] 16. Safety and Emergency Features implementation
-  - [ ] 16.1 Implement emergency contact management
+  - [x] 16.1 Implement emergency contact management
     - Create POST /api/users/emergency-contacts endpoint
     - Validate maximum 3 contacts per user
     - Store emergency contacts linked to user
@@ -521,7 +521,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 54: Emergency contact limit**
     - **Validates: Requirements 11.5**
   
-  - [ ] 16.3 Implement emergency alert system
+  - [x] 16.3 Implement emergency alert system
     - Create POST /api/rides/{rideId}/emergency endpoint
     - Notify platform administrators immediately
     - Include ride details and current location
@@ -533,7 +533,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 55: Emergency incident logging**
     - **Validates: Requirements 11.2, 11.6**
   
-  - [ ] 16.5 Implement ride sharing with emergency contacts
+  - [x] 16.5 Implement ride sharing with emergency contacts
     - Create POST /api/rides/{rideId}/share endpoint
     - Generate shareable link with ride details
     - Send link to emergency contacts via SMS
@@ -544,7 +544,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 52: Ride sharing capability**
     - **Validates: Requirements 11.3**
   
-  - [ ] 16.7 Implement route deviation monitoring
+  - [x] 16.7 Implement route deviation monitoring
     - Create background job to check route deviation
     - Run every 30 seconds for in-progress rides
     - Call detectRouteDeviation from Location Service
@@ -552,13 +552,13 @@ The implementation follows a layered approach: data models → core services →
     - _Requirements: 11.4_
 
 - [ ] 17. Notification Service implementation
-  - [ ] 17.1 Set up SMS gateway integration
+  - [x] 17.1 Set up SMS gateway integration
     - Install Twilio Python SDK
     - Configure Twilio credentials
     - Create sendSMS function
     - _Requirements: 1.2, 14.6_
   
-  - [ ] 17.2 Implement notification functions
+  - [x] 17.2 Implement notification functions
     - Create sendInAppNotification function (via WebSocket)
     - Create sendSMSNotification function
     - Create sendDualNotification for critical events
@@ -568,7 +568,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 63: Dual notification channels**
     - **Validates: Requirements 14.6**
   
-  - [ ] 17.4 Implement ride event notifications
+  - [x] 17.4 Implement ride event notifications
     - Send match notification with driver details and ETA
     - Send acceptance notification with pickup details
     - Send arrival notification
@@ -587,7 +587,7 @@ The implementation follows a layered approach: data models → core services →
     - **Validates: Requirements 14.1, 14.2, 14.3, 14.4, 14.5, 14.7, 15.6**
 
 - [ ] 18. Ride tracking and route display implementation
-  - [ ] 18.1 Implement route display for in-progress rides
+  - [x] 18.1 Implement route display for in-progress rides
     - Create GET /api/rides/{rideId}/route endpoint
     - Return current route with polyline
     - Include estimated time to destination
@@ -597,7 +597,7 @@ The implementation follows a layered approach: data models → core services →
     - **Property 39: In-progress route display**
     - **Validates: Requirements 8.3**
   
-  - [ ] 18.3 Implement completed ride route storage
+  - [x] 18.3 Implement completed ride route storage
     - Store complete route in Ride model on completion
     - Include all location points from ride
     - _Requirements: 8.5_
@@ -607,7 +607,7 @@ The implementation follows a layered approach: data models → core services →
     - **Validates: Requirements 8.5**
 
 - [ ] 19. Receipt generation implementation
-  - [ ] 19.1 Implement PDF receipt generation
+  - [x] 19.1 Implement PDF receipt generation
     - Install reportlab or similar PDF library
     - Create generateReceipt function
     - Include ride details, fare breakdown, payment info
@@ -620,7 +620,7 @@ The implementation follows a layered approach: data models → core services →
     - **Validates: Requirements 9.6**
 
 - [ ] 20. Driver availability time tracking
-  - [ ] 20.1 Implement availability time tracking
+  - [x] 20.1 Implement availability time tracking
     - Track time when driver sets status to "Available"
     - Track time when driver sets status to "Unavailable" or "Busy"
     - Calculate and accumulate daily availability hours
@@ -633,20 +633,20 @@ The implementation follows a layered approach: data models → core services →
     - **Validates: Requirements 12.6**
 
 - [ ] 21. API endpoint integration and error handling
-  - [ ] 21.1 Implement comprehensive error handling
+  - [x] 21.1 Implement comprehensive error handling
     - Add global exception handlers for FastAPI
     - Implement retry logic with exponential backoff for external services
     - Implement circuit breaker for payment gateways
     - Add proper error responses with status codes
     - _Requirements: All (cross-cutting)_
   
-  - [ ] 21.2 Add request validation middleware
+  - [x] 21.2 Add request validation middleware
     - Validate JWT tokens on protected endpoints
     - Validate request body schemas
     - Validate user permissions (rider vs driver actions)
     - _Requirements: 1.8_
   
-  - [ ] 21.3 Add logging and monitoring
+  - [x] 21.3 Add logging and monitoring
     - Configure structured logging
     - Log all API requests and responses
     - Log errors with context (userId, rideId, etc.)
@@ -672,10 +672,333 @@ The implementation follows a layered approach: data models → core services →
     - Test: ride sharing with emergency contacts
     - _Requirements: 11.2, 11.3, 11.6_
 
-- [ ] 23. Final checkpoint - Complete system integration
+- [x] 23. Final checkpoint - Complete system integration
   - Ensure all integration tests pass
   - Verify all property-based tests pass with 100+ iterations
   - Verify all API endpoints are functional
+  - Ask the user if questions arise.
+
+## New Feature Implementation Tasks
+
+- [-] 24. Geographical scope expansion implementation
+  - [x] 24.1 Update location service boundaries
+    - Update isWithinServiceArea to check 20km radius from city center
+    - Implement isInExtendedArea function to distinguish extended area from city center
+    - Update boundary coordinates to support circular 20km radius
+    - Add visual boundary indicator data for map display
+    - _Requirements: 18.1, 18.2, 18.3_
+  
+  - [ ]* 24.2 Write property tests for boundary validation
+    - **Property 96: Extended service area boundary validation**
+    - **Property 97: Extended area location classification**
+    - **Validates: Requirements 18.1, 18.2, 18.3**
+  
+  - [x] 24.3 Update fare calculation for tiered pricing
+    - Modify calculateEstimatedFare to apply ₹12/km for first 25km
+    - Apply ₹10/km for distance beyond 25km
+    - Update fare breakdown to show tiered calculation
+    - _Requirements: 18.4, 18.9_
+  
+  - [ ]* 24.4 Write property tests for tiered fare calculation
+    - **Property 98: Extended area fare calculation with tiered pricing**
+    - **Validates: Requirements 18.4, 18.9**
+  
+  - [x] 24.5 Update matching engine for extended area
+    - Modify getInitialSearchRadius to return 8km for extended area, 5km for city center
+    - Update timeout logic: 3 minutes for extended area, 2 minutes for city center
+    - Update radius expansion: +3km for extended area, +2km for city center
+    - _Requirements: 18.5, 18.6_
+  
+  - [ ]* 24.6 Write property tests for extended area matching
+    - **Property 99: Extended area initial search radius**
+    - **Property 100: Extended area timeout and expansion**
+    - **Validates: Requirements 18.5, 18.6**
+  
+  - [x] 24.7 Implement driver extended area preferences
+    - Add acceptExtendedArea field to DriverProfile
+    - Create PUT /api/drivers/preferences endpoint
+    - Store and retrieve driver preferences
+    - _Requirements: 18.10_
+  
+  - [x] 24.8 Update matching to respect extended area preferences
+    - Filter drivers by extended area preference when matching extended area rides
+    - Exclude drivers with disabled preference from extended area notifications
+    - _Requirements: 18.11_
+  
+  - [ ]* 24.9 Write property tests for preference enforcement
+    - **Property 102: Driver extended area preference**
+    - **Property 103: Extended area preference enforcement**
+    - **Validates: Requirements 18.10, 18.11**
+  
+  - [x] 24.10 Implement extended area statistics tracking
+    - Track extended area rides in driver profile
+    - Calculate percentage of extended area rides
+    - Display in driver dashboard
+    - _Requirements: 18.12_
+  
+  - [ ]* 24.11 Write property test for statistics tracking
+    - **Property 104: Extended area ride percentage tracking**
+    - **Validates: Requirements 18.12**
+  
+  - [x] 24.12 Update location validation error messages
+    - Return clear error for locations beyond 20km service area
+    - Include distance from service area in error message
+    - _Requirements: 18.8_
+  
+  - [ ]* 24.13 Write property test for out-of-area rejection
+    - **Property 101: Out-of-service-area rejection**
+    - **Validates: Requirements 18.8**
+
+- [ ] 25. Checkpoint - Geographical expansion complete
+  - Ensure all extended area tests pass, ask the user if questions arise.
+
+- [-] 26. Scheduled rides implementation
+  - [x] 26.1 Create ScheduledRide data model
+    - Define ScheduledRide table with SQLAlchemy ORM
+    - Include fields: rideId, riderId, pickupLocation, destination, scheduledPickupTime, status, etc.
+    - Define ScheduledRideStatus enum
+    - Implement database migration
+    - _Requirements: 16.1, 16.2, 16.4_
+  
+  - [x] 26.2 Implement scheduled ride creation endpoint
+    - Create POST /api/rides/schedule endpoint
+    - Validate scheduled time is within 7 days
+    - Validate all required fields present
+    - Calculate estimated fare
+    - Store with status "scheduled"
+    - _Requirements: 16.1, 16.2, 16.3, 16.4_
+  
+  - [ ]* 26.3 Write property tests for scheduled ride creation
+    - **Property 71: Scheduled ride time window validation**
+    - **Property 72: Scheduled ride data completeness**
+    - **Property 73: Scheduled ride fare calculation**
+    - **Property 74: Scheduled ride initial status**
+    - **Validates: Requirements 16.1, 16.2, 16.3, 16.4**
+  
+  - [x] 26.4 Implement scheduled ride modification
+    - Create PUT /api/rides/schedule/{rideId} endpoint
+    - Check modification is >2 hours before pickup
+    - Allow updates to pickup, destination, or scheduled time
+    - Recalculate fare if locations change
+    - _Requirements: 16.6_
+  
+  - [ ]* 26.5 Write property test for modification window
+    - **Property 76: Scheduled ride modification window**
+    - **Validates: Requirements 16.6**
+  
+  - [x] 26.6 Implement scheduled ride cancellation
+    - Create DELETE /api/rides/schedule/{rideId} endpoint
+    - Check cancellation time relative to pickup
+    - Charge ₹30 fee if <1 hour before pickup
+    - No fee if >1 hour before pickup
+    - Update status to "cancelled"
+    - _Requirements: 16.7, 16.8_
+  
+  - [ ]* 26.7 Write property test for cancellation fees
+    - **Property 77: Scheduled ride cancellation fee logic**
+    - **Validates: Requirements 16.7, 16.8**
+  
+  - [x] 26.8 Implement scheduled ride background job
+    - Create background job that runs every minute
+    - Find scheduled rides where scheduledTime - 30 minutes <= now
+    - Change status to "matching"
+    - Trigger matching engine for each eligible ride
+    - _Requirements: 16.5_
+  
+  - [ ]* 26.9 Write property test for matching trigger
+    - **Property 75: Scheduled ride matching trigger**
+    - **Validates: Requirements 16.5**
+  
+  - [x] 26.10 Implement scheduled ride reminders
+    - Add reminder logic to background job
+    - Send rider reminder at 15 minutes before pickup
+    - Send driver reminder at 15 minutes before pickup (if matched)
+    - Mark reminder as sent to avoid duplicates
+    - _Requirements: 16.9, 16.10_
+  
+  - [ ]* 26.11 Write property tests for reminders
+    - **Property 78: Scheduled ride rider reminder**
+    - **Property 79: Scheduled ride driver reminder**
+    - **Validates: Requirements 16.9, 16.10**
+  
+  - [x] 26.12 Implement no-driver-found handling
+    - Check scheduled rides at 15 minutes past scheduled time
+    - If status still "matching", send notification to rider
+    - Offer options to reschedule or cancel
+    - Update status to "no_driver_found"
+    - _Requirements: 16.11_
+  
+  - [ ]* 26.13 Write property test for no-driver notification
+    - **Property 80: Scheduled ride no-driver notification**
+    - **Validates: Requirements 16.11**
+  
+  - [x] 26.14 Implement scheduled rides dashboard endpoints
+    - Create GET /api/rides/scheduled endpoint
+    - Return scheduled rides separately from immediate rides
+    - Include filtering by status
+    - Sort by scheduled pickup time
+    - _Requirements: 16.12_
+  
+  - [ ]* 26.15 Write property test for separate display
+    - **Property 81: Scheduled rides separate display**
+    - **Validates: Requirements 16.12**
+
+- [x] 27. Checkpoint - Scheduled rides complete
+  - Ensure all scheduled ride tests pass, ask the user if questions arise.
+
+- [-] 28. Parcel delivery service implementation
+  - [x] 28.1 Create ParcelDelivery data model
+    - Define ParcelDelivery table with SQLAlchemy ORM
+    - Define ParcelDetails embedded model
+    - Define ParcelStatus enum
+    - Include fields for photos, signatures, confirmations
+    - Implement database migration
+    - _Requirements: 17.2, 17.3_
+  
+  - [x] 28.2 Implement parcel fare calculation
+    - Create calculateParcelFare function
+    - Apply base fare by size: small ₹40, medium ₹60, large ₹80
+    - Apply per-km rate by size: small ₹8, medium ₹10, large ₹12
+    - Return ParcelFareBreakdown
+    - _Requirements: 17.4, 17.5, 17.6_
+  
+  - [ ]* 28.3 Write property tests for parcel fare calculation
+    - **Property 84: Parcel size classification**
+    - **Property 85: Parcel fare calculation**
+    - **Validates: Requirements 17.3, 17.4, 17.5, 17.6**
+  
+  - [x] 28.4 Implement parcel delivery request endpoint
+    - Create POST /api/parcels/request endpoint
+    - Validate user is verified
+    - Validate all required fields present
+    - Validate weight does not exceed 30kg
+    - Calculate estimated fare and delivery time
+    - Store with status "requested"
+    - _Requirements: 17.1, 17.2, 17.13, 17.14_
+  
+  - [ ]* 28.5 Write property tests for parcel request validation
+    - **Property 82: Parcel delivery access control**
+    - **Property 83: Parcel delivery data completeness**
+    - **Property 93: Parcel weight limit enforcement**
+    - **Validates: Requirements 17.1, 17.2, 17.14**
+  
+  - [x] 28.6 Implement parcel pickup confirmation
+    - Create POST /api/parcels/{deliveryId}/confirm-pickup endpoint
+    - Require photo upload (base64 or file)
+    - Optionally require signature if specified
+    - Update status to "in_transit"
+    - Store pickup timestamp
+    - _Requirements: 17.7, 17.8, 17.9_
+  
+  - [ ]* 28.7 Write property tests for pickup confirmation
+    - **Property 86: Parcel pickup confirmation requirement**
+    - **Property 87: Parcel signature requirement**
+    - **Property 88: Parcel status transition on pickup**
+    - **Validates: Requirements 17.7, 17.8, 17.9**
+  
+  - [x] 28.8 Implement parcel delivery confirmation
+    - Create POST /api/parcels/{deliveryId}/confirm-delivery endpoint
+    - Require signature or photo from recipient
+    - Update status to "delivered"
+    - Store delivery timestamp
+    - Trigger payment processing
+    - _Requirements: 17.10_
+  
+  - [ ]* 28.9 Write property test for delivery confirmation
+    - **Property 89: Parcel delivery confirmation requirement**
+    - **Validates: Requirements 17.10**
+  
+  - [x] 28.10 Implement parcel location tracking
+    - Reuse driver location tracking from Location Service
+    - Create GET /api/parcels/{deliveryId}/location endpoint
+    - Return real-time driver location for in-transit parcels
+    - _Requirements: 17.11_
+  
+  - [ ]* 28.11 Write property test for parcel tracking
+    - **Property 90: Parcel location tracking**
+    - **Validates: Requirements 17.11**
+  
+  - [x] 28.12 Implement parcel completion notifications
+    - Send notification to sender on delivery completion
+    - Send notification to recipient on delivery completion
+    - Include delivery confirmation details
+    - _Requirements: 17.12_
+  
+  - [ ]* 28.13 Write property test for completion notifications
+    - **Property 91: Parcel completion notifications**
+    - **Validates: Requirements 17.12**
+  
+  - [x] 28.14 Implement parcel special instructions
+    - Store special instructions in ParcelDetails
+    - Display instructions to driver in notification
+    - Include fragile, urgent flags
+    - _Requirements: 17.15, 17.16_
+  
+  - [ ]* 28.15 Write property test for special instructions
+    - **Property 94: Parcel special instructions storage**
+    - **Validates: Requirements 17.15, 17.16**
+  
+  - [x] 28.16 Implement parcel history endpoints
+    - Create GET /api/parcels/history endpoint
+    - Filter by role: sender or recipient
+    - Return parcels separately from rides
+    - Include all parcel details and status
+    - _Requirements: 17.17_
+  
+  - [ ]* 28.17 Write property test for parcel history separation
+    - **Property 95: Parcel history separation**
+    - **Validates: Requirements 17.17**
+  
+  - [x] 28.18 Update matching engine for parcel deliveries
+    - Implement broadcastParcelRequest function
+    - Filter drivers by parcel delivery preference
+    - Use same proximity-based matching algorithm
+    - Create matchParcel function
+    - _Requirements: 17.1_
+  
+  - [x] 28.19 Add parcel delivery preference to driver profile
+    - Add acceptParcelDelivery field to DriverProfile
+    - Update driver preferences endpoint
+    - Filter drivers in matching based on preference
+    - _Requirements: 17.1_
+  
+  - [x] 28.20 Implement parcel delivery time estimation
+    - Calculate estimated delivery time based on distance
+    - Account for traffic conditions
+    - Display to sender and recipient
+    - _Requirements: 17.13_
+  
+  - [ ]* 28.21 Write property test for time estimation
+    - **Property 92: Parcel delivery time estimation**
+    - **Validates: Requirements 17.13**
+
+- [x] 29. Checkpoint - Parcel delivery complete
+  - Ensure all parcel delivery tests pass, ask the user if questions arise.
+
+- [ ] 30. Integration testing for new features
+  - [ ]* 30.1 Write integration tests for scheduled ride flow
+    - Test: schedule ride → wait for matching window → match → complete
+    - Test: schedule ride → modify → match → complete
+    - Test: schedule ride → cancel with fee
+    - Test: schedule ride → no driver found → notification
+    - _Requirements: 16.1-16.12_
+  
+  - [ ]* 30.2 Write integration tests for parcel delivery flow
+    - Test: request parcel → match → pickup with photo → deliver with signature → payment
+    - Test: request parcel → weight exceeds limit → rejection
+    - Test: request parcel → special instructions → driver sees instructions
+    - _Requirements: 17.1-17.17_
+  
+  - [ ]* 30.3 Write integration tests for extended area flow
+    - Test: request ride in extended area → adjusted matching → tiered fare
+    - Test: driver disables extended area → excluded from extended area rides
+    - Test: location beyond 20km → rejection with error
+    - _Requirements: 18.1-18.12_
+
+- [ ] 31. Final checkpoint - All new features integrated
+  - Ensure all new feature tests pass
+  - Verify all property-based tests pass with 100+ iterations
+  - Verify all new API endpoints are functional
   - Ask the user if questions arise.
 
 ## Notes
@@ -691,4 +1014,7 @@ The implementation follows a layered approach: data models → core services →
 - WebSocket connections should handle reconnection gracefully
 - Use Redis for real-time state (driver availability, active rides)
 - Use MongoDB for location data (optimized for geospatial queries)
-- Use PostgreSQL for transactional data (users, rides, payments)
+- Use PostgreSQL for transactional data (users, rides, payments, scheduled rides, parcels)
+- Background jobs for scheduled rides should use a job scheduler (e.g., APScheduler)
+- Parcel photos and signatures should be stored securely (consider cloud storage like S3)
+- Extended area rides may have longer wait times - set user expectations appropriately

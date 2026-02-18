@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animations Demo - RideConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .demo-section {
+            padding: 4rem 0;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .demo-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .demo-card h3 {
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        .demo-element {
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="padding-top: 2rem;">
+        <h1 class="gradient-text" style="text-align: center; font-size: 3rem; margin-bottom: 1rem;">
+            RideConnect Animations Demo
+        </h1>
+        <p style="text-align: center; color: #6b7280; margin-bottom: 3rem;">
+            Explore all the beautiful animations and effects
+        </p>
+
+        <!-- Entrance Animations -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Entrance Animations</h2>
+            <div class="demo-grid">
+                <div class="demo-card fade-in-up">
+                    <h3>Fade In Up</h3>
+                    <p>Smooth fade with upward motion</p>
+                </div>
+                <div class="demo-card slide-in-left">
+                    <h3>Slide In Left</h3>
+                    <p>Slides from the left side</p>
+                </div>
+                <div class="demo-card slide-in-right">
+                    <h3>Slide In Right</h3>
+                    <p>Slides from the right side</p>
+                </div>
+                <div class="demo-card scale-in">
+                    <h3>Scale In</h3>
+                    <p>Scales up from center</p>
+                </div>
+                <div class="demo-card rotate-in">
+                    <h3>Rotate In</h3>
+                    <p>Rotates while scaling</p>
+                </div>
+                <div class="demo-card bounce-in">
+                    <h3>Bounce In</h3>
+                    <p>Bouncy entrance effect</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Continuous Animations -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Continuous Animations</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <div class="demo-element float-animation">
+                        <i class="fas fa-car" style="font-size: 3rem; color: #667eea;"></i>
+                    </div>
+                    <h3>Float</h3>
+                    <p>Gentle floating motion</p>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-element pulse-animation">
+                        <i class="fas fa-heart" style="font-size: 3rem; color: #ef4444;"></i>
+                    </div>
+                    <h3>Pulse</h3>
+                    <p>Rhythmic pulsing effect</p>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-element" style="width: 100px; height: 100px; margin: 0 auto; background: linear-gradient(45deg, #667eea, #764ba2); border-radius: 20px;">
+                        <div class="morphing-shape blob" style="width: 100%; height: 100%;"></div>
+                    </div>
+                    <h3>Morphing Shape</h3>
+                    <p>Organic shape animation</p>
+                </div>
+                <div class="demo-card">
+                    <div class="demo-element spinner" style="width: 50px; height: 50px; margin: 0 auto; border: 4px solid #e5e7eb; border-top-color: #667eea; border-radius: 50%;"></div>
+                    <h3>Spinner</h3>
+                    <p>Loading indicator</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hover Effects -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Hover Effects</h2>
+            <div class="demo-grid">
+                <div class="demo-card hover-lift">
+                    <i class="fas fa-arrow-up" style="font-size: 2rem; color: #667eea;"></i>
+                    <h3>Hover Lift</h3>
+                    <p>Lifts up on hover</p>
+                </div>
+                <div class="demo-card hover-scale">
+                    <i class="fas fa-search-plus" style="font-size: 2rem; color: #667eea;"></i>
+                    <h3>Hover Scale</h3>
+                    <p>Scales up on hover</p>
+                </div>
+                <div class="demo-card hover-rotate">
+                    <i class="fas fa-sync" style="font-size: 2rem; color: #667eea;"></i>
+                    <h3>Hover Rotate</h3>
+                    <p>Rotates on hover</p>
+                </div>
+                <div class="demo-card hover-glow">
+                    <i class="fas fa-star" style="font-size: 2rem; color: #667eea;"></i>
+                    <h3>Hover Glow</h3>
+                    <p>Glows on hover</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Text Effects -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Text Effects</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <h3 class="gradient-text">Gradient Text</h3>
+                    <p>Colorful gradient text</p>
+                </div>
+                <div class="demo-card">
+                    <h3 class="neon-text" style="color: #667eea;">Neon Glow</h3>
+                    <p>Glowing neon effect</p>
+                </div>
+                <div class="demo-card">
+                    <a href="#" class="animated-underline" style="font-size: 1.2rem; color: #667eea; text-decoration: none;">
+                        Animated Underline
+                    </a>
+                    <p style="margin-top: 1rem;">Hover to see effect</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Buttons -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Button Effects</h2>
+            <div class="demo-grid">
+                <div class="demo-card">
+                    <button class="btn btn-primary hover-lift button-press">
+                        <i class="fas fa-rocket"></i>
+                        Primary Button
+                    </button>
+                </div>
+                <div class="demo-card">
+                    <button class="btn btn-outline hover-scale button-press">
+                        <i class="fas fa-heart"></i>
+                        Outline Button
+                    </button>
+                </div>
+                <div class="demo-card">
+                    <button class="btn btn-primary btn-large hover-glow button-press">
+                        <i class="fas fa-star"></i>
+                        Large Button
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Glass Morphism -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Glass Morphism</h2>
+            <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 3rem; border-radius: 12px;">
+                <div class="glass-effect" style="padding: 2rem; border-radius: 12px; color: white;">
+                    <h3 style="margin-bottom: 1rem;">Glass Effect Card</h3>
+                    <p>Beautiful frosted glass effect with backdrop blur</p>
+                    <button class="btn btn-outline" style="margin-top: 1rem; color: white; border-color: white;">
+                        Learn More
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stagger Animations -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Stagger Animations</h2>
+            <div class="demo-grid">
+                <div class="demo-card fade-in-up stagger-1">
+                    <h3>Item 1</h3>
+                    <p>Delay: 0.1s</p>
+                </div>
+                <div class="demo-card fade-in-up stagger-2">
+                    <h3>Item 2</h3>
+                    <p>Delay: 0.2s</p>
+                </div>
+                <div class="demo-card fade-in-up stagger-3">
+                    <h3>Item 3</h3>
+                    <p>Delay: 0.3s</p>
+                </div>
+                <div class="demo-card fade-in-up stagger-4">
+                    <h3>Item 4</h3>
+                    <p>Delay: 0.4s</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Background Effects -->
+        <section class="demo-section">
+            <h2 style="color: #1f2937; margin-bottom: 1rem;">Background Effects</h2>
+            <div class="animated-gradient" style="padding: 4rem; border-radius: 12px; text-align: center; color: white;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Animated Gradient</h2>
+                <p style="font-size: 1.2rem;">Smooth color transitions</p>
+            </div>
+        </section>
+
+        <div style="text-align: center; padding: 3rem 0;">
+            <a href="index.html" class="btn btn-primary btn-large hover-lift">
+                <i class="fas fa-home"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.demo-section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(30px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

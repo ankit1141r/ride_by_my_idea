@@ -2,18 +2,20 @@
 
 ## Overview
 
-The ride-hailing platform is a web-first application that connects riders with drivers for intra-city transportation within Indore. The system architecture follows a client-server model with real-time communication capabilities, integrating with external services for payments, mapping, and notifications.
+The ride-hailing platform is a web-first application that connects riders with drivers for intra-city transportation within Indore and its surrounding areas (20km radius). The system supports both immediate and scheduled rides, as well as peer-to-peer parcel delivery services. The architecture follows a client-server model with real-time communication capabilities, integrating with external services for payments, mapping, and notifications.
 
 The platform consists of three main layers:
 1. **Presentation Layer**: Web application providing interfaces for riders and drivers
-2. **Application Layer**: Business logic, ride matching algorithms, and orchestration
-3. **Data Layer**: Persistent storage for users, rides, transactions, and system state
+2. **Application Layer**: Business logic, ride matching algorithms, scheduling, and orchestration
+3. **Data Layer**: Persistent storage for users, rides, parcels, transactions, and system state
 
 Key design principles:
 - Real-time responsiveness for ride matching and tracking
 - Security-first approach for user data and financial transactions
 - Scalability to support growth beyond initial deployment
-- Modular architecture enabling future feature additions (planned trips, parcel delivery)
+- Modular architecture enabling feature additions and service area expansion
+- Flexible scheduling system for planned trips
+- Robust parcel tracking and confirmation workflows
 
 ## Architecture
 
@@ -33,6 +35,8 @@ graph TB
     subgraph "Application Services"
         AuthService[Authentication Service]
         RideService[Ride Management Service]
+        SchedulingService[Scheduling Service]
+        ParcelService[Parcel Delivery Service]
         MatchingEngine[Ride Matching Engine]
         PaymentService[Payment Service]
         NotificationService[Notification Service]
@@ -55,11 +59,18 @@ graph TB
     DriverWeb --> Gateway
     Gateway --> AuthService
     Gateway --> RideService
+    Gateway --> SchedulingService
+    Gateway --> ParcelService
     Gateway --> LocationService
     
     RideService --> MatchingEngine
     RideService --> PaymentService
     RideService --> NotificationService
+    SchedulingService --> MatchingEngine
+    SchedulingService --> NotificationService
+    ParcelService --> MatchingEngine
+    ParcelService --> PaymentService
+    ParcelService --> NotificationService
     
     PaymentService --> PaymentGW
     NotificationService --> SMSGateway
@@ -67,11 +78,15 @@ graph TB
     
     AuthService --> PostgreSQL
     RideService --> PostgreSQL
+    SchedulingService --> PostgreSQL
+    ParcelService --> PostgreSQL
     MatchingEngine --> Redis
     LocationService --> MongoDB
     
     AuthService --> Redis
     RideService --> Redis
+    SchedulingService --> Redis
+    ParcelService --> Redis
 ```
 
 ### Communication Patterns
@@ -215,6 +230,8 @@ interface RideSession {
 - Match riders with optimal drivers based on proximity
 - Handle concurrent acceptance scenarios
 - Manage driver availability state
+- Support extended area matching with adjusted search radius
+- Handle both ride and parcel delivery matching
 
 **Key Interfaces**:
 
@@ -222,15 +239,17 @@ interface RideSession {
 interface MatchingEngine {
   // Matching operations
   broadcastRideRequest(request: RideRequest, searchRadius: number): Promise<BroadcastResult>
+  broadcastParcelRequest(request: ParcelDeliveryRequest, searchRadius: number): Promise<BroadcastResult>
   matchRide(requestId: string, driverId: string): Promise<RideMatch>
+  matchParcel(deliveryId: string, driverId: string): Promise<ParcelMatch>
   
   // Driver availability
   setDriverAvailable(driverId: string, location: Location): Promise<void>
   setDriverUnavailable(driverId: string): Promise<void>
-  getAvailableDrivers(location: Location, radius: number): Promise<Driver[]>
+  getAvailableDrivers(location: Location, radius: number, extendedAreaEnabled?: boolean): Promise<Driver[]>
   
   // Matching algorithm
-  findOptimalDriver(request: RideRequest, candidates: Driver[]): Promise<Driver>
+  findOptimalDriver(request: RideRequest | ParcelDeliveryRequest, candidates: Driver[]): Promise<Driver>
 }
 
 interface BroadcastResult {
@@ -248,21 +267,33 @@ interface RideMatch {
 }
 ```
 
-**Matching Algorithm**:
+**Matching Algorithm with Extended Area Support**:
 
-The matching engine uses a proximity-based algorithm with expanding search radius:
+The matching engine uses a proximity-based algorithm with adjusted parameters for extended area:
 
-1. Initial broadcast: Find all available drivers within 5km of pickup
-2. Sort drivers by distance (closest first)
-3. Notify drivers in batches (closest 5 drivers first)
-4. If no acceptance within 30 seconds, notify next batch
-5. If no acceptance within 2 minutes, expand radius by 2km and repeat
-6. On concurrent acceptances, assign to closest driver
+1. Determine if pickup is in extended area
+2. Set initial search radius: 5km for city center, 8km for extended area
+3. Find all available drivers within radius
+4. Filter drivers by extended area preference if applicable
+5. Sort drivers by distance (closest first)
+6. Notify drivers in batches (closest 5 drivers first)
+7. If no acceptance within 30 seconds, notify next batch
+8. If no acceptance within timeout (2 min city, 3 min extended), expand radius
+9. Radius expansion: +2km for city center, +3km for extended area
+10. On concurrent acceptances, assign to closest driver
 
 ```
 function matchDriver(request: RideRequest, drivers: Driver[]): Driver {
+  // Check if pickup is in extended area
+  isExtended = locationService.isInExtendedArea(request.pickupLocation)
+  
   // Filter available drivers
   available = drivers.filter(d => d.status === 'available')
+  
+  // Filter by extended area preference if needed
+  if (isExtended) {
+    available = available.filter(d => d.preferences.acceptExtendedArea !== false)
+  }
   
   // Calculate distances
   withDistances = available.map(d => ({
@@ -275,6 +306,21 @@ function matchDriver(request: RideRequest, drivers: Driver[]): Driver {
   
   // Return closest
   return sorted[0].driver
+}
+
+function getInitialSearchRadius(location: Location): number {
+  isExtended = locationService.isInExtendedArea(location)
+  return isExtended ? 8 : 5  // km
+}
+
+function getRadiusExpansion(location: Location): number {
+  isExtended = locationService.isInExtendedArea(location)
+  return isExtended ? 3 : 2  // km
+}
+
+function getMatchingTimeout(location: Location): number {
+  isExtended = locationService.isInExtendedArea(location)
+  return isExtended ? 180 : 120  // seconds
 }
 ```
 
@@ -334,10 +380,21 @@ interface PaymentResult {
 
 ```
 baseFare = 30  // ₹30
-perKmRate = 12  // ₹12/km
+perKmRate = 12  // ₹12/km for first 25km
+perKmRateExtended = 10  // ₹10/km beyond 25km
 surgeMultiplier = 1.0  // default, can increase during high demand
 
-estimatedFare = (baseFare + (distance * perKmRate)) * surgeMultiplier
+function calculateRideFare(distance: number, surgeMultiplier: number = 1.0): number {
+  if (distance <= 25) {
+    fare = baseFare + (distance * perKmRate)
+  } else {
+    // First 25km at regular rate, rest at reduced rate
+    fare = baseFare + (25 * perKmRate) + ((distance - 25) * perKmRateExtended)
+  }
+  
+  estimatedFare = fare * surgeMultiplier
+  return estimatedFare
+}
 
 // Final fare protection
 if (abs(finalFare - estimatedFare) / estimatedFare > 0.20) {
@@ -349,10 +406,11 @@ if (abs(finalFare - estimatedFare) / estimatedFare > 0.20) {
 
 **Responsibilities**:
 - Track real-time driver locations
-- Validate addresses within service boundaries
+- Validate addresses within expanded service boundaries (Indore + 20km radius)
 - Calculate distances and routes
 - Provide map data for UI
 - Detect route deviations
+- Distinguish between city center and extended area locations
 
 **Key Interfaces**:
 
@@ -366,12 +424,20 @@ interface LocationService {
   // Address validation
   validateAddress(address: string): Promise<ValidationResult>
   isWithinServiceArea(location: Location): Promise<boolean>
+  isInExtendedArea(location: Location): Promise<boolean>
   searchAddress(query: string): Promise<Address[]>
   
   // Distance and routing
   calculateDistance(from: Location, to: Location): Promise<number>
   getRoute(from: Location, to: Location): Promise<Route>
   detectRouteDeviation(currentLocation: Location, expectedRoute: Route): Promise<DeviationAlert>
+}
+
+interface ValidationResult {
+  valid: boolean
+  inServiceArea: boolean
+  inExtendedArea: boolean
+  normalizedAddress: string
 }
 
 interface Route {
@@ -386,6 +452,45 @@ interface DeviationAlert {
   deviationDistance: number  // meters
   currentLocation: Location
   expectedLocation: Location
+}
+```
+
+**Service Area Boundaries**:
+
+```
+// Indore city center (approximate)
+cityCenterLat = 22.7196
+cityCenterLon = 75.8577
+
+// Service area: 20km radius from city center
+serviceAreaRadius = 20  // kilometers
+
+function isWithinServiceArea(location: Location): boolean {
+  distance = calculateDistance(
+    {lat: cityCenterLat, lon: cityCenterLon},
+    location
+  )
+  return distance <= serviceAreaRadius
+}
+
+// Extended area: beyond original city limits but within 20km
+// Original city limits (approximate rectangular bounds)
+cityLimits = {
+  minLat: 22.6,
+  maxLat: 22.8,
+  minLon: 75.7,
+  maxLon: 75.9
+}
+
+function isInExtendedArea(location: Location): boolean {
+  inServiceArea = isWithinServiceArea(location)
+  inCityLimits = (
+    location.lat >= cityLimits.minLat &&
+    location.lat <= cityLimits.maxLat &&
+    location.lon >= cityLimits.minLon &&
+    location.lon <= cityLimits.maxLon
+  )
+  return inServiceArea && !inCityLimits
 }
 ```
 
@@ -415,11 +520,236 @@ interface NotificationService {
 }
 
 interface Notification {
-  type: 'ride_matched' | 'driver_arrived' | 'ride_completed' | 'payment_success' | 'emergency'
+  type: 'ride_matched' | 'driver_arrived' | 'ride_completed' | 'payment_success' | 'emergency' | 'scheduled_reminder' | 'parcel_pickup' | 'parcel_delivered'
   title: string
   message: string
   data?: any
   timestamp: Date
+}
+```
+
+### Scheduling Service
+
+**Responsibilities**:
+- Manage scheduled ride requests
+- Trigger matching at appropriate times
+- Handle scheduled ride modifications and cancellations
+- Send reminder notifications
+- Track scheduled ride status
+
+**Key Interfaces**:
+
+```typescript
+interface SchedulingService {
+  // Scheduled ride management
+  createScheduledRide(request: ScheduledRideRequest): Promise<ScheduledRide>
+  modifyScheduledRide(rideId: string, updates: ScheduledRideUpdate): Promise<ScheduledRide>
+  cancelScheduledRide(rideId: string, userId: string): Promise<CancellationResult>
+  
+  // Scheduled ride retrieval
+  getScheduledRides(userId: string): Promise<ScheduledRide[]>
+  getScheduledRideDetails(rideId: string): Promise<ScheduledRide>
+  
+  // Matching trigger
+  triggerScheduledMatching(rideId: string): Promise<void>
+  
+  // Reminders
+  sendScheduledReminders(): Promise<void>
+}
+
+interface ScheduledRideRequest {
+  riderId: string
+  pickupLocation: Location
+  destination: Location
+  scheduledPickupTime: Date
+  requestedAt: Date
+}
+
+interface ScheduledRideUpdate {
+  pickupLocation?: Location
+  destination?: Location
+  scheduledPickupTime?: Date
+}
+
+interface ScheduledRide {
+  rideId: string
+  riderId: string
+  pickupLocation: Location
+  destination: Location
+  scheduledPickupTime: Date
+  estimatedFare: number
+  status: 'scheduled' | 'matching' | 'matched' | 'cancelled' | 'completed'
+  driverId?: string
+  matchedAt?: Date
+  createdAt: Date
+  modifiedAt?: Date
+}
+```
+
+**Scheduling Logic**:
+
+The scheduling service uses a background job to monitor scheduled rides:
+
+1. Every minute, check for scheduled rides where `scheduledPickupTime - 30 minutes <= now`
+2. For each eligible ride, change status to "matching" and trigger matching engine
+3. Send reminder to rider at 15 minutes before scheduled time
+4. Send reminder to matched driver at 15 minutes before scheduled time
+5. If no driver matched within 15 minutes of scheduled time, notify rider
+
+```
+function processScheduledRides() {
+  now = getCurrentTime()
+  matchingWindow = now + 30 minutes
+  
+  // Find rides ready for matching
+  rides = getScheduledRides(status='scheduled', scheduledTime <= matchingWindow)
+  
+  for each ride in rides:
+    ride.status = 'matching'
+    matchingEngine.broadcastRideRequest(ride)
+    
+  // Send reminders
+  reminderWindow = now + 15 minutes
+  ridesForReminder = getScheduledRides(scheduledTime <= reminderWindow, reminderSent=false)
+  
+  for each ride in ridesForReminder:
+    notificationService.sendReminder(ride.riderId, ride)
+    if ride.driverId:
+      notificationService.sendReminder(ride.driverId, ride)
+    ride.reminderSent = true
+}
+```
+
+### Parcel Delivery Service
+
+**Responsibilities**:
+- Manage parcel delivery requests
+- Calculate parcel delivery fares
+- Handle pickup and delivery confirmations
+- Track parcel status and location
+- Store parcel delivery history
+
+**Key Interfaces**:
+
+```typescript
+interface ParcelService {
+  // Parcel delivery management
+  createParcelDelivery(request: ParcelDeliveryRequest): Promise<ParcelDelivery>
+  cancelParcelDelivery(deliveryId: string, userId: string): Promise<CancellationResult>
+  
+  // Pickup and delivery confirmation
+  confirmPickup(deliveryId: string, driverId: string, photo: Buffer, signature?: string): Promise<void>
+  confirmDelivery(deliveryId: string, recipientId: string, photo: Buffer, signature?: string): Promise<void>
+  
+  // Parcel tracking
+  getParcelStatus(deliveryId: string): Promise<ParcelDelivery>
+  getParcelLocation(deliveryId: string): Promise<Location>
+  
+  // Parcel history
+  getParcelHistory(userId: string, role: 'sender' | 'recipient'): Promise<ParcelDelivery[]>
+  getParcelDetails(deliveryId: string): Promise<ParcelDeliveryDetails>
+  
+  // Driver operations
+  acceptParcelDelivery(deliveryId: string, driverId: string): Promise<ParcelMatch>
+  rejectParcelDelivery(deliveryId: string, driverId: string): Promise<void>
+}
+
+interface ParcelDeliveryRequest {
+  senderId: string
+  pickupLocation: Location
+  recipientLocation: Location
+  recipientPhone: string
+  recipientName: string
+  parcelDetails: ParcelDetails
+  specialInstructions?: string
+  requireSignature: boolean
+  requestedAt: Date
+}
+
+interface ParcelDetails {
+  size: 'small' | 'medium' | 'large'
+  weight: number  // kilograms
+  description: string
+  fragile: boolean
+  urgent: boolean
+}
+
+interface ParcelDelivery {
+  deliveryId: string
+  senderId: string
+  recipientId?: string
+  recipientPhone: string
+  recipientName: string
+  driverId?: string
+  pickupLocation: Location
+  recipientLocation: Location
+  parcelDetails: ParcelDetails
+  specialInstructions?: string
+  requireSignature: boolean
+  status: ParcelStatus
+  estimatedFare: number
+  finalFare?: number
+  pickupPhoto?: string
+  pickupSignature?: string
+  deliveryPhoto?: string
+  deliverySignature?: string
+  estimatedDeliveryTime?: Date
+  createdAt: Date
+  pickedUpAt?: Date
+  deliveredAt?: Date
+}
+
+type ParcelStatus = 
+  | 'requested'
+  | 'matched'
+  | 'driver_arriving'
+  | 'picked_up'
+  | 'in_transit'
+  | 'arriving_at_destination'
+  | 'delivered'
+  | 'cancelled'
+
+interface ParcelMatch {
+  deliveryId: string
+  senderId: string
+  driverId: string
+  matchedAt: Date
+  estimatedPickupTime: number
+}
+```
+
+**Parcel Fare Calculation Logic**:
+
+```
+function calculateParcelFare(distance: number, size: ParcelSize): FareCalculation {
+  // Base fare by size
+  baseFare = {
+    'small': 40,
+    'medium': 60,
+    'large': 80
+  }[size]
+  
+  // Per km rate by size
+  perKmRate = {
+    'small': 8,
+    'medium': 10,
+    'large': 12
+  }[size]
+  
+  distanceCharge = distance * perKmRate
+  totalFare = baseFare + distanceCharge
+  
+  return {
+    baseFare,
+    distanceCharge,
+    distance,
+    totalFare,
+    breakdown: {
+      base: baseFare,
+      perKm: perKmRate,
+      distance: distance
+    }
+  }
 }
 ```
 
@@ -446,6 +776,7 @@ interface User {
   // Ratings
   averageRating: number
   totalRides: number
+  totalParcels?: number  // For drivers
 }
 
 interface DriverProfile {
@@ -458,6 +789,17 @@ interface DriverProfile {
   totalEarnings: number
   cancellationCount: number
   lastCancellationReset: Date
+  
+  // Extended area preferences
+  preferences: DriverPreferences
+  
+  // Statistics
+  extendedAreaRidePercentage: number
+}
+
+interface DriverPreferences {
+  acceptExtendedArea: boolean
+  acceptParcelDelivery: boolean
 }
 
 interface VehicleInfo {
@@ -593,6 +935,111 @@ interface RideRequest {
   broadcastCount: number
   createdAt: Date
   expiresAt: Date
+  isExtendedArea: boolean
+}
+```
+
+### Scheduled Ride Model
+
+```typescript
+interface ScheduledRide {
+  rideId: string
+  riderId: string
+  pickupLocation: Location
+  destination: Location
+  scheduledPickupTime: Date
+  estimatedFare: number
+  fareBreakdown: FareBreakdown
+  status: ScheduledRideStatus
+  driverId?: string
+  matchedAt?: Date
+  reminderSent: boolean
+  createdAt: Date
+  modifiedAt?: Date
+  cancelledAt?: Date
+  cancellationReason?: string
+  cancellationFee?: number
+}
+
+type ScheduledRideStatus = 
+  | 'scheduled'
+  | 'matching'
+  | 'matched'
+  | 'driver_arriving'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled'
+  | 'no_driver_found'
+```
+
+### Parcel Delivery Model
+
+```typescript
+interface ParcelDelivery {
+  deliveryId: string
+  senderId: string
+  recipientPhone: string
+  recipientName: string
+  recipientId?: string  // If recipient is a registered user
+  driverId?: string
+  pickupLocation: Location
+  recipientLocation: Location
+  parcelDetails: ParcelDetails
+  specialInstructions?: string
+  requireSignature: boolean
+  status: ParcelStatus
+  estimatedFare: number
+  finalFare?: number
+  fareBreakdown: ParcelFareBreakdown
+  
+  // Confirmation data
+  pickupPhoto?: string  // URL or base64
+  pickupSignature?: string
+  pickupConfirmedAt?: Date
+  deliveryPhoto?: string
+  deliverySignature?: string
+  deliveryConfirmedAt?: Date
+  
+  // Timing
+  estimatedDeliveryTime?: Date
+  createdAt: Date
+  matchedAt?: Date
+  pickedUpAt?: Date
+  deliveredAt?: Date
+  cancelledAt?: Date
+  
+  // Payment
+  paymentStatus: 'pending' | 'completed' | 'failed'
+  transactionId?: string
+  
+  // Tracking
+  actualRoute?: Location[]
+}
+
+interface ParcelDetails {
+  size: 'small' | 'medium' | 'large'
+  weight: number  // kilograms
+  description: string
+  fragile: boolean
+  urgent: boolean
+}
+
+type ParcelStatus = 
+  | 'requested'
+  | 'matched'
+  | 'driver_arriving_pickup'
+  | 'picked_up'
+  | 'in_transit'
+  | 'driver_arriving_destination'
+  | 'delivered'
+  | 'cancelled'
+
+interface ParcelFareBreakdown {
+  baseFare: number
+  distanceCharge: number
+  distance: number
+  totalFare: number
+  sizeCategory: 'small' | 'medium' | 'large'
 }
 ```
 
@@ -887,6 +1334,169 @@ A property is a characteristic or behavior that should hold true across all vali
 
 **Property 65: Pre-match cancellation**
 *For any* ride request cancelled before a driver is matched, no cancellation fee should be charged.
+**Validates: Requirements 15.1**
+
+**Property 66: Post-match cancellation fee**
+*For any* ride cancelled by the rider after driver match but before pickup, a cancellation fee of ₹20 should be charged.
+**Validates: Requirements 15.2**
+
+**Property 67: Driver cancellation capability**
+*For any* matched ride before pickup, the driver should be able to cancel the ride.
+**Validates: Requirements 15.3**
+
+**Property 68: Driver cancellation logging**
+*For any* driver cancellation, the cancellation should be recorded in the driver's cancellation history with timestamp.
+**Validates: Requirements 15.4**
+
+**Property 69: Driver cancellation limit enforcement**
+*For any* driver, if they cancel more than 3 rides in a single day, their account should be automatically suspended for 24 hours.
+**Validates: Requirements 15.5**
+
+**Property 70: In-progress cancellation restriction**
+*For any* ride with status "in_progress", cancellation attempts by either party should be rejected.
+**Validates: Requirements 15.7**
+
+### Scheduled Rides Properties
+
+**Property 71: Scheduled ride time window validation**
+*For any* scheduled ride request, if the scheduled pickup time is more than 7 days in the future, the request should be rejected, and if it is within 7 days, it should be accepted.
+**Validates: Requirements 16.1**
+
+**Property 72: Scheduled ride data completeness**
+*For any* scheduled ride creation attempt, if any required field (pickup location, destination, scheduled pickup time) is missing, the creation should fail.
+**Validates: Requirements 16.2**
+
+**Property 73: Scheduled ride fare calculation**
+*For any* created scheduled ride, it should have an estimated fare value calculated and stored.
+**Validates: Requirements 16.3**
+
+**Property 74: Scheduled ride initial status**
+*For any* newly created scheduled ride, its status should be "scheduled" until the matching window begins.
+**Validates: Requirements 16.4**
+
+**Property 75: Scheduled ride matching trigger**
+*For any* scheduled ride, when the scheduled pickup time is 30 minutes away, the ride status should transition to "matching" and driver matching should begin.
+**Validates: Requirements 16.5**
+
+**Property 76: Scheduled ride modification window**
+*For any* scheduled ride, modification attempts more than 2 hours before pickup should succeed, and modification attempts less than 2 hours before pickup should be rejected.
+**Validates: Requirements 16.6**
+
+**Property 77: Scheduled ride cancellation fee logic**
+*For any* scheduled ride cancellation, if cancelled more than 1 hour before pickup, no fee should be charged, and if cancelled less than 1 hour before pickup, a fee of ₹30 should be charged.
+**Validates: Requirements 16.7, 16.8**
+
+**Property 78: Scheduled ride rider reminder**
+*For any* scheduled ride, when the scheduled pickup time is 15 minutes away, a reminder notification should be sent to the rider.
+**Validates: Requirements 16.9**
+
+**Property 79: Scheduled ride driver reminder**
+*For any* matched scheduled ride, when the scheduled pickup time is 15 minutes away, a reminder notification should be sent to the matched driver.
+**Validates: Requirements 16.10**
+
+**Property 80: Scheduled ride no-driver notification**
+*For any* scheduled ride, if no driver accepts within 15 minutes of the scheduled time, the rider should receive a notification offering to reschedule or cancel.
+**Validates: Requirements 16.11**
+
+**Property 81: Scheduled rides separate display**
+*For any* rider's dashboard query, scheduled rides should be returned in a separate list from immediate ride requests.
+**Validates: Requirements 16.12**
+
+### Parcel Delivery Properties
+
+**Property 82: Parcel delivery access control**
+*For any* parcel delivery request, only verified users should be able to create the request.
+**Validates: Requirements 17.1**
+
+**Property 83: Parcel delivery data completeness**
+*For any* parcel delivery creation attempt, if any required field (pickup location, recipient location, parcel size, weight, description) is missing, the creation should fail.
+**Validates: Requirements 17.2**
+
+**Property 84: Parcel size classification**
+*For any* parcel, if weight is up to 5kg it should be classified as small, if 5-15kg as medium, and if 15-30kg as large.
+**Validates: Requirements 17.3**
+
+**Property 85: Parcel fare calculation**
+*For any* parcel delivery request, the fare should be calculated based on the formula: base_fare[size] + (distance * per_km_rate[size]).
+**Validates: Requirements 17.4, 17.5, 17.6**
+
+**Property 86: Parcel pickup confirmation requirement**
+*For any* driver acceptance of a parcel delivery, pickup confirmation should require a photo of the parcel.
+**Validates: Requirements 17.7**
+
+**Property 87: Parcel signature requirement**
+*For any* parcel delivery with signature requirement enabled, pickup confirmation should include a signature.
+**Validates: Requirements 17.8**
+
+**Property 88: Parcel status transition on pickup**
+*For any* parcel delivery, when the driver confirms pickup, the status should transition to "in_transit".
+**Validates: Requirements 17.9**
+
+**Property 89: Parcel delivery confirmation requirement**
+*For any* parcel delivery at recipient location, delivery confirmation should require either a signature or photo.
+**Validates: Requirements 17.10**
+
+**Property 90: Parcel location tracking**
+*For any* parcel delivery in transit, location updates should be tracked and accessible in real-time.
+**Validates: Requirements 17.11**
+
+**Property 91: Parcel completion notifications**
+*For any* completed parcel delivery, both sender and recipient should receive completion notifications.
+**Validates: Requirements 17.12**
+
+**Property 92: Parcel delivery time estimation**
+*For any* parcel delivery request, an estimated delivery time should be calculated and provided.
+**Validates: Requirements 17.13**
+
+**Property 93: Parcel weight limit enforcement**
+*For any* parcel delivery request, if the parcel weight exceeds 30kg, the request should be rejected.
+**Validates: Requirements 17.14**
+
+**Property 94: Parcel special instructions storage**
+*For any* parcel delivery with special handling instructions, the instructions should be stored and displayed to the driver.
+**Validates: Requirements 17.15, 17.16**
+
+**Property 95: Parcel history separation**
+*For any* user's history query, parcel deliveries should be returned separately from ride history.
+**Validates: Requirements 17.17**
+
+### Geographical Expansion Properties
+
+**Property 96: Extended service area boundary validation**
+*For any* location, if it is within 20km of Indore city center, it should be accepted as within the service area, and if beyond 20km, it should be rejected.
+**Validates: Requirements 18.1, 18.2**
+
+**Property 97: Extended area location classification**
+*For any* location within the service area, the system should correctly identify whether it is in the city center or extended area.
+**Validates: Requirements 18.3**
+
+**Property 98: Extended area fare calculation with tiered pricing**
+*For any* ride, if the distance is up to 25km, the fare should use ₹12/km, and if distance exceeds 25km, the portion beyond 25km should use ₹10/km.
+**Validates: Requirements 18.4, 18.9**
+
+**Property 99: Extended area initial search radius**
+*For any* ride request with pickup in the extended area, the initial driver search radius should be 8km, and for city center pickups, it should be 5km.
+**Validates: Requirements 18.5**
+
+**Property 100: Extended area timeout and expansion**
+*For any* extended area ride request with no driver acceptance, the search radius should expand by 3km after 3 minutes, compared to 2km after 2 minutes for city center rides.
+**Validates: Requirements 18.6**
+
+**Property 101: Out-of-service-area rejection**
+*For any* location selection attempt, if the location is beyond the 20km service area, an error message should be displayed indicating the location is not serviceable.
+**Validates: Requirements 18.8**
+
+**Property 102: Driver extended area preference**
+*For any* driver, they should be able to set a preference for accepting or declining extended area rides, and this preference should be stored.
+**Validates: Requirements 18.10**
+
+**Property 103: Extended area preference enforcement**
+*For any* ride request with extended area locations, drivers who have disabled extended area rides should not receive notifications for that ride.
+**Validates: Requirements 18.11**
+
+**Property 104: Extended area ride percentage tracking**
+*For any* driver, the percentage of their rides involving extended area locations should be accurately calculated and displayed.
+**Validates: Requirements 18.12**river is matched, no cancellation fee should be charged.
 **Validates: Requirements 15.1**
 
 **Property 66: Post-match cancellation fee**
@@ -1246,9 +1856,12 @@ describe('Driver Cancellation', () => {
 
 **Key Scenarios**:
 1. Complete ride flow: request → match → pickup → complete → payment → rating
-2. Cancellation flows: pre-match, post-match, driver cancellation
-3. Emergency flow: activation → notification → logging
-4. Payment retry flow: failure → retry → success/failure
+2. Scheduled ride flow: schedule → reminder → match → pickup → complete
+3. Parcel delivery flow: request → match → pickup confirmation → transit → delivery confirmation → payment
+4. Cancellation flows: pre-match, post-match, driver cancellation, scheduled ride cancellation
+5. Emergency flow: activation → notification → logging
+6. Payment retry flow: failure → retry → success/failure
+7. Extended area ride flow: request in extended area → adjusted matching → completion with tiered fare
 
 **Tools**: Supertest for API testing, Test containers for database
 
@@ -1258,8 +1871,12 @@ describe('Driver Cancellation', () => {
 
 **Key Journeys**:
 1. Rider: Register → Request ride → Track driver → Complete ride → Rate
-2. Driver: Register → Go available → Accept ride → Navigate → Complete → Receive payment
-3. Emergency: Start ride → Activate emergency → Verify notifications
+2. Rider: Register → Schedule ride → Receive reminder → Track driver → Complete
+3. Sender: Register → Request parcel delivery → Track parcel → Confirm delivery
+4. Driver: Register → Go available → Accept ride → Navigate → Complete → Receive payment
+5. Driver: Register → Accept parcel → Confirm pickup with photo → Deliver → Confirm with signature
+6. Emergency: Start ride → Activate emergency → Verify notifications
+7. Extended area: Request ride in extended area → Match with driver → Complete with tiered fare
 
 **Tools**: Playwright or Cypress for browser automation
 

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Dashboard - RideConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar dashboard-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-car"></i>
+                <span>RideConnect Driver</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link active" data-section="availability">
+                    <i class="fas fa-toggle-on"></i>
+                    Go Online
+                </a>
+                <a href="#" class="nav-link" data-section="current-ride">
+                    <i class="fas fa-route"></i>
+                    Current Ride
+                </a>
+                <a href="#" class="nav-link" data-section="earnings">
+                    <i class="fas fa-wallet"></i>
+                    Earnings
+                </a>
+                <a href="#" class="nav-link" data-section="ride-history">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                <a href="#" class="nav-link" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <button class="btn btn-outline" onclick="authManager.logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Availability Section -->
+        <section id="availability" class="dashboard-section active">
+            <div class="section-header">
+                <h2>Driver Status</h2>
+                <p>Manage your availability and receive ride requests</p>
+            </div>
+
+            <div class="availability-card">
+                <div class="status-toggle">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="availabilityToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div class="status-text">
+                            <h3 id="statusText">You're Offline</h3>
+                            <p id="statusDescription">Turn on to start receiving ride requests</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="availability-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="todayHours">0h 0m</span>
+                            <span class="stat-label">Today's Hours</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="todayRides">0</span>
+                            <span class="stat-label">Today's Rides</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="todayEarnings">₹0</span>
+                            <span class="stat-label">Today's Earnings</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ride Requests -->
+            <div id="rideRequestCard" class="ride-request-card" style="display: none;">
+                <div class="request-header">
+                    <h3>New Ride Request</h3>
+                    <div class="timer" id="requestTimer">30s</div>
+                </div>
+                <div id="rideRequestDetails" class="request-details">
+                    <!-- Request details will be populated here -->
+                </div>
+                <div class="request-actions">
+                    <button class="btn btn-danger btn-large" onclick="driverDashboard.rejectRide()">
+                        <i class="fas fa-times"></i>
+                        Decline
+                    </button>
+                    <button class="btn btn-success btn-large" onclick="driverDashboard.acceptRide()">
+                        <i class="fas fa-check"></i>
+                        Accept
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Current Ride Section -->
+        <section id="current-ride" class="dashboard-section">
+            <div class="section-header">
+                <h2>Current Ride</h2>
+                <p>Manage your ongoing ride</p>
+            </div>
+
+            <div id="noCurrentRide" class="empty-state">
+                <i class="fas fa-car"></i>
+                <h3>No Active Ride</h3>
+                <p>Go online to start receiving ride requests</p>
+                <button class="btn btn-primary" onclick="showSection('availability')">
+                    Go Online
+                </button>
+            </div>
+
+            <div id="currentRideCard" class="ride-card" style="display: none;">
+                <!-- Current ride details will be populated here -->
+            </div>
+        </section>
+
+        <!-- Earnings Section -->
+        <section id="earnings" class="dashboard-section">
+            <div class="section-header">
+                <h2>Earnings</h2>
+                <p>Track your income and payouts</p>
+            </div>
+
+            <div class="earnings-summary">
+                <div class="earnings-card">
+                    <h3>Today</h3>
+                    <div class="earnings-amount" id="todayEarningsDetail">₹0</div>
+                    <div class="earnings-rides" id="todayRidesDetail">0 rides</div>
+                </div>
+                <div class="earnings-card">
+                    <h3>This Week</h3>
+                    <div class="earnings-amount" id="weekEarnings">₹0</div>
+                    <div class="earnings-rides" id="weekRides">0 rides</div>
+                </div>
+                <div class="earnings-card">
+                    <h3>This Month</h3>
+                    <div class="earnings-amount" id="monthEarnings">₹0</div>
+                    <div class="earnings-rides" id="monthRides">0 rides</div>
+                </div>
+            </div>
+
+            <div class="payout-section">
+                <h3>Recent Payouts</h3>
+                <div id="payoutsList" class="payouts-list">
+                    <!-- Payouts will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Ride History Section -->
+        <section id="ride-history" class="dashboard-section">
+            <div class="section-header">
+                <h2>Ride History</h2>
+                <p>View your completed rides</p>
+            </div>
+
+            <div class="history-filters">
+                <select id="historyFilter" class="filter-select">
+                    <option value="all">All Rides</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <input type="date" id="dateFilter" class="date-filter">
+            </div>
+
+            <div id="rideHistoryList" class="history-list">
+                <!-- Ride history will be populated here -->
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="dashboard-section">
+            <div class="section-header">
+                <h2>Driver Profile</h2>
+                <p>Manage your profile and vehicle information</p>
+            </div>
+
+            <div class="profile-grid">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName">Loading...</h3>
+                            <p id="profilePhone">Loading...</p>
+                            <div class="rating-display">
+                                <div class="stars" id="profileRating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span id="ratingValue">5.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <h4>Vehicle Information</h4>
+                    <div id="vehicleInfo" class="vehicle-details">
+                        <!-- Vehicle info will be populated here -->
+                    </div>
+                    <button class="btn btn-outline btn-small" onclick="showUpdateVehicleModal()">
+                        <i class="fas fa-edit"></i>
+                        Update Vehicle
+                    </button>
+                </div>
+
+                <div class="profile-card">
+                    <h4>Driver Statistics</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalRides">0</span>
+                            <span class="stat-label">Total Rides</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalEarnings">₹0</span>
+                            <span class="stat-label">Total Earnings</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="avgRating">5.0</span>
+                            <span class="stat-label">Average Rating</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="acceptanceRate">100%</span>
+                            <span class="stat-label">Acceptance Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Update Vehicle Modal -->
+    <div id="updateVehicleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Vehicle Information</h2>
+                <span class="close" onclick="closeModal('updateVehicleModal')">&times;</span>
+            </div>
+            <form id="updateVehicleForm" class="vehicle-form">
+                <div class="form-group">
+                    <label for="vehicleRegistration">Registration Number</label>
+                    <input type="text" id="vehicleRegistration" placeholder="MP09AB1234" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleMake">Make</label>
+                        <input type="text" id="vehicleMake" placeholder="Maruti" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleModel">Model</label>
+                        <input type="text" id="vehicleModel" placeholder="Swift" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vehicleColor">Color</label>
+                        <input type="text" id="vehicleColor" placeholder="White" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="insuranceExpiry">Insurance Expiry</label>
+                        <input type="date" id="insuranceExpiry" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-save"></i>
+                    Update Vehicle
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Rate Your Rider</h2>
+                <span class="close" onclick="closeModal('ratingModal')">&times;</span>
+            </div>
+            <div class="rating-form">
+                <div class="rider-info" id="ratingRiderInfo">
+                    <!-- Rider info will be populated here -->
+                </div>
+                <div class="rating-input">
+                    <label>How was your ride?</label>
+                    <div class="star-rating" id="starRating">
+                        <i class="fas fa-star" data-rating="1"></i>
+                        <i class="fas fa-star" data-rating="2"></i>
+                        <i class="fas fa-star" data-rating="3"></i>
+                        <i class="fas fa-star" data-rating="4"></i>
+                        <i class="fas fa-star" data-rating="5"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ratingComment">Comments (Optional)</label>
+                    <textarea id="ratingComment" placeholder="Share your experience..." rows="3"></textarea>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="submitRating()">
+                    <i class="fas fa-star"></i>
+                    Submit Rating
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Please wait...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/driver-dashboard.js"></script>
+</body>
+</html>

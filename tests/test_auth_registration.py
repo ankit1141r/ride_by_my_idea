@@ -3,43 +3,10 @@ Unit tests for user registration endpoint.
 Tests Requirements 1.1, 1.5, 1.7
 """
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from datetime import datetime, timedelta
-import bcrypt
 
-from app.main import app
-from app.database import Base, get_db
 from app.models.user import User, DriverProfile, UserType
 from app.routers.auth import hash_password, verify_password
-
-
-# Test database setup
-SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test_auth.db"
-engine = create_engine(SQLALCHEMY_TEST_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def override_get_db():
-    """Override database dependency for testing."""
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
-client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def setup_database():
-    """Create and drop test database for each test."""
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
 
 
 class TestPasswordHashing:
@@ -83,7 +50,7 @@ class TestPasswordHashing:
 class TestRiderRegistration:
     """Test rider registration (Requirement 1.1)."""
     
-    def test_register_rider_success(self):
+    def test_register_rider_success(self, client):
         """Test successful rider registration with all required fields."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -104,7 +71,7 @@ class TestRiderRegistration:
         assert "created_at" in data
         assert "message" in data
     
-    def test_register_rider_password_hashed_in_database(self):
+    def test_register_rider_password_hashed_in_database(self, client, db_session):
         """Test that password is hashed in database (Requirement 1.7)."""
         plain_password = "securepass123"
         response = client.post("/api/auth/register", json={
@@ -119,16 +86,13 @@ class TestRiderRegistration:
         user_id = response.json()["user_id"]
         
         # Check database
-        db = TestingSessionLocal()
-        user = db.query(User).filter(User.user_id == user_id).first()
+        user = db_session.query(User).filter(User.user_id == user_id).first()
         
         assert user.password_hash != plain_password
         assert user.password_hash.startswith('$2b$')
         assert verify_password(plain_password, user.password_hash)
-        
-        db.close()
     
-    def test_register_rider_without_vehicle_info(self):
+    def test_register_rider_without_vehicle_info(self, client):
         """Test that riders don't need vehicle information."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -140,7 +104,7 @@ class TestRiderRegistration:
         
         assert response.status_code == 201
     
-    def test_register_rider_with_vehicle_info_fails(self):
+    def test_register_rider_with_vehicle_info_fails(self, client):
         """Test that riders cannot provide vehicle information."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -165,7 +129,7 @@ class TestRiderRegistration:
 class TestDriverRegistration:
     """Test driver registration (Requirements 1.1, 1.5, 10.1)."""
     
-    def test_register_driver_success_with_vehicle_info(self):
+    def test_register_driver_success_with_vehicle_info(self, client, db_session):
         """Test successful driver registration with vehicle information."""
         insurance_expiry = (datetime.utcnow() + timedelta(days=60)).isoformat()
         
@@ -191,17 +155,15 @@ class TestDriverRegistration:
         assert data["phone_number"] == "+919876543210"
         
         # Verify driver profile created in database
-        db = TestingSessionLocal()
-        user = db.query(User).filter(User.user_id == data["user_id"]).first()
+        user = db_session.query(User).filter(User.user_id == data["user_id"]).first()
         assert user.driver_profile is not None
         assert user.driver_profile.vehicle_registration == "MP09AB1234"
         assert user.driver_profile.vehicle_make == "Toyota"
         assert user.driver_profile.vehicle_model == "Innova"
         assert user.driver_profile.vehicle_color == "White"
         assert user.driver_profile.license_number == "DL1234567890"
-        db.close()
     
-    def test_register_driver_without_vehicle_info_fails(self):
+    def test_register_driver_without_vehicle_info_fails(self, client):
         """Test that driver registration fails without vehicle information (Requirement 1.5)."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -214,7 +176,7 @@ class TestDriverRegistration:
         assert response.status_code == 422
         assert "vehicle information is required for driver" in response.json()["detail"][0]["msg"].lower()
     
-    def test_register_driver_all_vehicle_fields_required(self):
+    def test_register_driver_all_vehicle_fields_required(self, client):
         """Test that all vehicle fields are required for drivers (Requirement 10.1)."""
         # Missing registration_number
         response = client.post("/api/auth/register", json={
@@ -239,7 +201,7 @@ class TestDriverRegistration:
 class TestRegistrationValidation:
     """Test input validation for registration."""
     
-    def test_invalid_phone_number_format(self):
+    def test_invalid_phone_number_format(self, client):
         """Test that invalid phone number format is rejected."""
         response = client.post("/api/auth/register", json={
             "phone_number": "1234567890",  # Missing +91
@@ -251,7 +213,7 @@ class TestRegistrationValidation:
         
         assert response.status_code == 422
     
-    def test_invalid_email_format(self):
+    def test_invalid_email_format(self, client):
         """Test that invalid email format is rejected."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -263,7 +225,7 @@ class TestRegistrationValidation:
         
         assert response.status_code == 422
     
-    def test_password_too_short(self):
+    def test_password_too_short(self, client):
         """Test that short passwords are rejected."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -275,7 +237,7 @@ class TestRegistrationValidation:
         
         assert response.status_code == 422
     
-    def test_invalid_user_type(self):
+    def test_invalid_user_type(self, client):
         """Test that invalid user types are rejected."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -287,7 +249,7 @@ class TestRegistrationValidation:
         
         assert response.status_code == 422
     
-    def test_name_too_short(self):
+    def test_name_too_short(self, client):
         """Test that names shorter than 2 characters are rejected."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -299,7 +261,7 @@ class TestRegistrationValidation:
         
         assert response.status_code == 422
     
-    def test_missing_required_fields(self):
+    def test_missing_required_fields(self, client):
         """Test that missing required fields are rejected."""
         response = client.post("/api/auth/register", json={
             "phone_number": "+919876543210",
@@ -313,7 +275,7 @@ class TestRegistrationValidation:
 class TestDuplicateRegistration:
     """Test duplicate user registration prevention."""
     
-    def test_duplicate_phone_number(self):
+    def test_duplicate_phone_number(self, client):
         """Test that duplicate phone numbers are rejected."""
         # First registration
         client.post("/api/auth/register", json={
@@ -336,7 +298,7 @@ class TestDuplicateRegistration:
         assert response.status_code == 409
         assert "phone number already exists" in response.json()["detail"].lower()
     
-    def test_duplicate_email(self):
+    def test_duplicate_email(self, client):
         """Test that duplicate emails are rejected."""
         # First registration
         client.post("/api/auth/register", json={
@@ -363,7 +325,7 @@ class TestDuplicateRegistration:
 class TestInsuranceValidation:
     """Test insurance expiry validation (Requirement 10.3)."""
     
-    def test_insurance_expiry_at_least_30_days(self):
+    def test_insurance_expiry_at_least_30_days(self, client):
         """Test that insurance must be valid for at least 30 days."""
         # Exactly 30 days - should pass
         insurance_expiry = (datetime.utcnow() + timedelta(days=30)).isoformat()
@@ -386,7 +348,7 @@ class TestInsuranceValidation:
         
         assert response.status_code == 201
     
-    def test_insurance_expiry_less_than_30_days_fails(self):
+    def test_insurance_expiry_less_than_30_days_fails(self, client):
         """Test that insurance expiring in less than 30 days is rejected."""
         # 29 days - should fail
         insurance_expiry = (datetime.utcnow() + timedelta(days=29)).isoformat()
@@ -410,7 +372,7 @@ class TestInsuranceValidation:
         assert response.status_code == 422
         assert "insurance must be valid for at least 30 days" in response.json()["detail"][0]["msg"].lower()
     
-    def test_expired_insurance_fails(self):
+    def test_expired_insurance_fails(self, client):
         """Test that expired insurance is rejected."""
         # Past date
         insurance_expiry = (datetime.utcnow() - timedelta(days=1)).isoformat()

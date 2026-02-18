@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Dashboard - RideConnect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar dashboard-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-car"></i>
+                <span>RideConnect</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link active" data-section="book-ride">
+                    <i class="fas fa-plus-circle"></i>
+                    Book Ride
+                </a>
+                <a href="#" class="nav-link" data-section="current-ride">
+                    <i class="fas fa-route"></i>
+                    Current Ride
+                </a>
+                <a href="#" class="nav-link" data-section="ride-history">
+                    <i class="fas fa-history"></i>
+                    History
+                </a>
+                <a href="#" class="nav-link" data-section="profile">
+                    <i class="fas fa-user"></i>
+                    Profile
+                </a>
+                <button class="btn btn-outline" onclick="authManager.logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container">
+        <!-- Book Ride Section -->
+        <section id="book-ride" class="dashboard-section active">
+            <div class="section-header">
+                <h2>Book a Ride</h2>
+                <p>Enter your pickup and destination to find nearby drivers</p>
+            </div>
+
+            <div class="ride-booking-card">
+                <form id="rideBookingForm" class="booking-form">
+                    <div class="location-inputs">
+                        <div class="location-input-group">
+                            <div class="location-icon pickup-icon">
+                                <i class="fas fa-circle"></i>
+                            </div>
+                            <div class="input-container">
+                                <label>Pickup Location</label>
+                                <input type="text" id="pickupLocation" placeholder="Enter pickup location" required>
+                                <button type="button" class="location-btn" onclick="useCurrentLocation('pickup')">
+                                    <i class="fas fa-crosshairs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="location-input-group">
+                            <div class="location-icon destination-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="input-container">
+                                <label>Destination</label>
+                                <input type="text" id="destinationLocation" placeholder="Where are you going?" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ride-options">
+                        <div class="fare-estimate" id="fareEstimate" style="display: none;">
+                            <div class="fare-info">
+                                <span class="fare-label">Estimated Fare</span>
+                                <span class="fare-amount" id="fareAmount">₹0</span>
+                            </div>
+                            <div class="distance-info">
+                                <span id="distanceInfo">0 km</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-large btn-full">
+                        <i class="fas fa-search"></i>
+                        Find Drivers
+                    </button>
+                </form>
+            </div>
+
+            <!-- Driver Search Results -->
+            <div id="driverSearchResults" class="driver-results" style="display: none;">
+                <div class="results-header">
+                    <h3>Available Drivers</h3>
+                    <button class="btn btn-outline btn-small" onclick="cancelSearch()">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                </div>
+                <div id="driversList" class="drivers-list">
+                    <!-- Driver cards will be populated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Current Ride Section -->
+        <section id="current-ride" class="dashboard-section">
+            <div class="section-header">
+                <h2>Current Ride</h2>
+                <p>Track your ongoing ride</p>
+            </div>
+
+            <div id="noCurrentRide" class="empty-state">
+                <i class="fas fa-car"></i>
+                <h3>No Active Ride</h3>
+                <p>You don't have any active rides at the moment</p>
+                <button class="btn btn-primary" onclick="showSection('book-ride')">
+                    Book a Ride
+                </button>
+            </div>
+
+            <div id="currentRideCard" class="ride-card" style="display: none;">
+                <!-- Current ride details will be populated here -->
+            </div>
+        </section>
+
+        <!-- Ride History Section -->
+        <section id="ride-history" class="dashboard-section">
+            <div class="section-header">
+                <h2>Ride History</h2>
+                <p>View your past rides and receipts</p>
+            </div>
+
+            <div class="history-filters">
+                <select id="historyFilter" class="filter-select">
+                    <option value="all">All Rides</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <input type="date" id="dateFilter" class="date-filter">
+            </div>
+
+            <div id="rideHistoryList" class="history-list">
+                <!-- Ride history will be populated here -->
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="dashboard-section">
+            <div class="section-header">
+                <h2>Profile</h2>
+                <p>Manage your account and preferences</p>
+            </div>
+
+            <div class="profile-grid">
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName">Loading...</h3>
+                            <p id="profilePhone">Loading...</p>
+                            <div class="rating-display">
+                                <div class="stars" id="profileRating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span id="ratingValue">5.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-card">
+                    <h4>Emergency Contacts</h4>
+                    <div id="emergencyContactsList" class="contacts-list">
+                        <!-- Emergency contacts will be populated here -->
+                    </div>
+                    <button class="btn btn-outline btn-small" onclick="showAddContactModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Contact
+                    </button>
+                </div>
+
+                <div class="profile-card">
+                    <h4>Ride Statistics</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalRides">0</span>
+                            <span class="stat-label">Total Rides</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalSpent">₹0</span>
+                            <span class="stat-label">Total Spent</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="avgRating">5.0</span>
+                            <span class="stat-label">Average Rating</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Emergency Contact Modal -->
+    <div id="addContactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Emergency Contact</h2>
+                <span class="close" onclick="closeModal('addContactModal')">&times;</span>
+            </div>
+            <form id="addContactForm" class="contact-form">
+                <div class="form-group">
+                    <label for="contactName">Name</label>
+                    <input type="text" id="contactName" placeholder="Contact name" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactPhone">Phone Number</label>
+                    <input type="tel" id="contactPhone" placeholder="+91 98765 43210" required>
+                </div>
+                <div class="form-group">
+                    <label for="contactRelation">Relationship</label>
+                    <select id="contactRelation" required>
+                        <option value="">Select relationship</option>
+                        <option value="family">Family</option>
+                        <option value="friend">Friend</option>
+                        <option value="colleague">Colleague</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-plus"></i>
+                    Add Contact
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Rate Your Ride</h2>
+                <span class="close" onclick="closeModal('ratingModal')">&times;</span>
+            </div>
+            <div class="rating-form">
+                <div class="driver-info" id="ratingDriverInfo">
+                    <!-- Driver info will be populated here -->
+                </div>
+                <div class="rating-input">
+                    <label>How was your ride?</label>
+                    <div class="star-rating" id="starRating">
+                        <i class="fas fa-star" data-rating="1"></i>
+                        <i class="fas fa-star" data-rating="2"></i>
+                        <i class="fas fa-star" data-rating="3"></i>
+                        <i class="fas fa-star" data-rating="4"></i>
+                        <i class="fas fa-star" data-rating="5"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="ratingComment">Comments (Optional)</label>
+                    <textarea id="ratingComment" placeholder="Share your experience..." rows="3"></textarea>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="submitRating()">
+                    <i class="fas fa-star"></i>
+                    Submit Rating
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Please wait...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/rider-dashboard.js"></script>
+</body>
+</html>

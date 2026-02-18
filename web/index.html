@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideConnect - Your Ride, Your Way</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-car"></i>
+                <span>RideConnect</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#about" class="nav-link">About</a>
+                <button class="btn btn-outline" onclick="showLoginModal()">Login</button>
+                <button class="btn btn-primary" onclick="showRegisterModal()">Sign Up</button>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero animated-gradient">
+        <div class="hero-container">
+            <div class="hero-content slide-in-left">
+                <h1 class="gradient-text">Your Ride, Your Way</h1>
+                <p class="fade-in-up stagger-1">Experience seamless transportation in Indore with RideConnect. Safe, reliable, and affordable rides at your fingertips.</p>
+                <div class="hero-buttons fade-in-up stagger-2">
+                    <button class="btn btn-primary btn-large hover-lift button-press" onclick="showRegisterModal('rider')">
+                        <i class="fas fa-user"></i>
+                        Book a Ride
+                    </button>
+                    <button class="btn btn-outline btn-large hover-lift button-press" onclick="showRegisterModal('driver')">
+                        <i class="fas fa-car"></i>
+                        Drive & Earn
+                    </button>
+                </div>
+            </div>
+            <div class="hero-image slide-in-right">
+                <div class="phone-mockup float-animation hover-scale">
+                    <div class="phone-screen">
+                        <div class="app-interface">
+                            <div class="map-placeholder">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>Indore</span>
+                            </div>
+                            <div class="ride-card">
+                                <div class="ride-info">
+                                    <span class="pickup">📍 Rajwada</span>
+                                    <span class="destination">🏢 Treasure Island</span>
+                                </div>
+                                <div class="fare">₹85</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="fade-in-scroll">Why Choose RideConnect?</h2>
+            <div class="features-grid">
+                <div class="feature-card hover-lift fade-in-scroll stagger-1">
+                    <div class="feature-icon pulse-animation">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Real-time Matching</h3>
+                    <p>Get matched with nearby drivers instantly using our advanced algorithm</p>
+                </div>
+                <div class="feature-card hover-lift fade-in-scroll stagger-2">
+                    <div class="feature-icon pulse-animation">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Safe & Secure</h3>
+                    <p>Emergency contacts, ride sharing, and 24/7 support for your safety</p>
+                </div>
+                <div class="feature-card hover-lift fade-in-scroll stagger-3">
+                    <div class="feature-icon pulse-animation">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3>Easy Payments</h3>
+                    <p>Multiple payment options including Razorpay and Paytm integration</p>
+                </div>
+                <div class="feature-card hover-lift fade-in-scroll stagger-4">
+                    <div class="feature-icon pulse-animation">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Rating System</h3>
+                    <p>Rate your experience and help maintain quality service</p>
+                </div>
+                <div class="feature-card hover-lift fade-in-scroll stagger-5">
+                    <div class="feature-icon pulse-animation">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <h3>Smart Routing</h3>
+                    <p>Optimized routes powered by Google Maps for faster rides</p>
+                </div>
+                <div class="feature-card hover-lift fade-in-scroll stagger-6">
+                    <div class="feature-icon pulse-animation">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <h3>SMS Notifications</h3>
+                    <p>Stay updated with ride status via SMS and in-app notifications</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text fade-in-scroll">
+                    <h2 class="gradient-text">Connecting Indore, One Ride at a Time</h2>
+                    <p>RideConnect is Indore's premier ride-hailing platform, designed specifically for our beautiful city. We understand the local needs and provide tailored solutions for both riders and drivers.</p>
+                    <div class="stats">
+                        <div class="stat scale-in stagger-1">
+                            <h3 id="rideCount" class="gradient-text">1000+</h3>
+                            <p>Rides Completed</p>
+                        </div>
+                        <div class="stat scale-in stagger-2">
+                            <h3 id="driverCount" class="gradient-text">50+</h3>
+                            <p>Active Drivers</p>
+                        </div>
+                        <div class="stat scale-in stagger-3">
+                            <h3 id="userCount" class="gradient-text">500+</h3>
+                            <p>Happy Users</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image fade-in-scroll">
+                    <div class="city-illustration morphing-shape blob">
+                        <i class="fas fa-city"></i>
+                        <span>Indore</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h2>Welcome Back</h2>
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            </div>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginPhone">Phone Number</label>
+                    <input type="tel" id="loginPhone" placeholder="+91 98765 43210" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full hover-lift button-press">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </button>
+            </form>
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="#" onclick="closeModal('loginModal'); showRegisterModal()">Sign up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content glass-effect">
+            <div class="modal-header">
+                <h2>Join RideConnect</h2>
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+            </div>
+            <div class="user-type-selector">
+                <button class="user-type-btn active" data-type="rider">
+                    <i class="fas fa-user"></i>
+                    <span>Rider</span>
+                </button>
+                <button class="user-type-btn" data-type="driver">
+                    <i class="fas fa-car"></i>
+                    <span>Driver</span>
+                </button>
+            </div>
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">Phone Number</label>
+                    <input type="tel" id="registerPhone" placeholder="+91 98765 43210" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" placeholder="Create a strong password" required>
+                </div>
+                
+                <!-- Driver-specific fields -->
+                <div id="driverFields" class="driver-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="licenseNumber">License Number</label>
+                        <input type="text" id="licenseNumber" placeholder="DL1234567890">
+                    </div>
+                    <div class="form-group">
+                        <label for="vehicleRegistration">Vehicle Registration</label>
+                        <input type="text" id="vehicleRegistration" placeholder="MP09AB1234">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicleMake">Vehicle Make</label>
+                            <input type="text" id="vehicleMake" placeholder="Maruti">
+                        </div>
+                        <div class="form-group">
+                            <label for="vehicleModel">Vehicle Model</label>
+                            <input type="text" id="vehicleModel" placeholder="Swift">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="vehicleColor">Vehicle Color</label>
+                            <input type="text" id="vehicleColor" placeholder="White">
+                        </div>
+                        <div class="form-group">
+                            <label for="insuranceExpiry">Insurance Expiry</label>
+                            <input type="date" id="insuranceExpiry">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full hover-lift button-press">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+            <div class="auth-footer">
+                <p>Already have an account? <a href="#" onclick="closeModal('registerModal'); showLoginModal()">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Please wait...</p>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-car"></i>
+                        <span>RideConnect</span>
+                    </div>
+                    <p>Your trusted ride-hailing partner in Indore</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="admin.html">Admin Panel</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Safety</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 RideConnect. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

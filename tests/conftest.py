@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from fakeredis import FakeRedis
 from app.main import app
 from app.database import Base, get_db
 from app.config import settings
@@ -44,3 +45,11 @@ def client(db_session):
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(scope="function")
+def redis_client():
+    """Create a fake Redis client for testing."""
+    fake_redis = FakeRedis(decode_responses=True)
+    yield fake_redis
+    fake_redis.flushall()

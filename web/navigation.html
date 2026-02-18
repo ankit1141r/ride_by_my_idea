@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideConnect - Website Navigation</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .page-card {
+            background: #f8f9ff;
+            border: 2px solid #e1e5fe;
+            border-radius: 15px;
+            padding: 25px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .page-icon {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .page-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .page-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .page-features {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .page-features li {
+            color: #555;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .page-features li:before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .tech-stack {
+            background: #f0f2ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .tech-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .tech-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .tech-item i {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .server-status {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
+
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-car"></i> RideConnect
+            </div>
+            <div class="subtitle">Complete Ride-Hailing Platform Website</div>
+        </div>
+
+        <div class="pages-grid">
+            <a href="index.html" class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="page-title">Landing Page</div>
+                <div class="page-description">
+                    Modern homepage with user registration, login, and feature showcase
+                </div>
+                <ul class="page-features">
+                    <li>User registration forms</li>
+                    <li>Login functionality</li>
+                    <li>Role selection (Rider/Driver)</li>
+                    <li>Responsive design</li>
+                </ul>
+            </a>
+
+            <a href="rider-dashboard.html" class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="page-title">Rider Dashboard</div>
+                <div class="page-description">
+                    Complete interface for riders to book and manage rides
+                </div>
+                <ul class="page-features">
+                    <li>Book new rides</li>
+                    <li>Real-time tracking</li>
+                    <li>Ride history</li>
+                    <li>Emergency features</li>
+                </ul>
+            </a>
+
+            <a href="driver-dashboard.html" class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="page-title">Driver Dashboard</div>
+                <div class="page-description">
+                    Professional interface for drivers to manage availability and rides
+                </div>
+                <ul class="page-features">
+                    <li>Go online/offline</li>
+                    <li>Accept/reject rides</li>
+                    <li>Earnings tracking</li>
+                    <li>Vehicle management</li>
+                </ul>
+            </a>
+
+            <a href="admin.html" class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="page-title">Admin Panel</div>
+                <div class="page-description">
+                    Comprehensive system management and monitoring interface
+                </div>
+                <ul class="page-features">
+                    <li>User management</li>
+                    <li>System statistics</li>
+                    <li>Ride monitoring</li>
+                    <li>Payment tracking</li>
+                </ul>
+            </a>
+
+            <a href="animations-demo.html" class="page-card">
+                <div class="page-icon">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <div class="page-title">Animations Demo</div>
+                <div class="page-description">
+                    Showcase of all beautiful animations and effects
+                </div>
+                <ul class="page-features">
+                    <li>40+ animations</li>
+                    <li>Hover effects</li>
+                    <li>Glass morphism</li>
+                    <li>Interactive demos</li>
+                </ul>
+            </a>
+        </div>
+
+        <div class="tech-stack">
+            <div class="tech-title">
+                <i class="fas fa-code"></i> Complete Tech Stack
+            </div>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fab fa-html5"></i>
+                    <div>5 HTML Pages</div>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-css3-alt"></i>
+                    <div>3 CSS Files</div>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-js-square"></i>
+                    <div>7 JavaScript Files</div>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-server"></i>
+                    <div>FastAPI Backend</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="server-status">
+            <span class="status-indicator"></span>
+            <strong>Server Running:</strong> http://localhost:8001
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="../docs" class="btn">
+                <i class="fas fa-book"></i> API Documentation
+            </a>
+            <a href="../health" class="btn btn-outline">
+                <i class="fas fa-heartbeat"></i> Health Check
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click animations
+            const cards = document.querySelectorAll('.page-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Create ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.background = 'rgba(102, 126, 234, 0.3)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.left = (e.clientX - card.offsetLeft - 25) + 'px';
+                    ripple.style.top = (e.clientY - card.offsetTop - 25) + 'px';
+                    ripple.style.width = ripple.style.height = '50px';
+                    
+                    card.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

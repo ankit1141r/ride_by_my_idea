@@ -57,6 +57,12 @@ class DriverProfile(Base):
     license_number = Column(String(50), nullable=False)
     license_verified = Column(Boolean, default=False)
     
+    # ID document information
+    id_document_path = Column(String(500), nullable=True)
+    id_document_type = Column(String(50), nullable=True)
+    id_document_uploaded_at = Column(DateTime, nullable=True)
+    id_verification_status = Column(String(20), default="pending")
+    
     # Vehicle information
     vehicle_registration = Column(String(50), nullable=False)
     vehicle_make = Column(String(50), nullable=False)
@@ -76,6 +82,14 @@ class DriverProfile(Base):
     # Cancellation tracking
     cancellation_count = Column(Integer, default=0)
     last_cancellation_reset = Column(DateTime, default=datetime.utcnow)
+    
+    # Extended area preferences (Requirements: 18.10, 18.11)
+    accept_extended_area = Column(Boolean, default=True, nullable=False)
+    accept_parcel_delivery = Column(Boolean, default=True, nullable=False)
+    
+    # Extended area statistics (Requirements: 18.12)
+    extended_area_ride_count = Column(Integer, default=0)
+    total_ride_count = Column(Integer, default=0)
     
     # Account flags
     is_suspended = Column(Boolean, default=False)
