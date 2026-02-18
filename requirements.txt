@@ -1,0 +1,41 @@
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20
+
+# Database - PostgreSQL  
+sqlalchemy==2.0.36
+psycopg[binary]==3.3.2
+alembic==1.14.0
+
+# Database - Redis
+redis==5.2.1
+
+# Database - MongoDB
+pymongo[srv]==4.9.1
+motor==3.6.0
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+hypothesis==6.122.4
+httpx==0.28.1
+
+# External Services - Payment Gateways
+razorpay==1.4.2
+
+# External Services - SMS
+twilio==9.4.0
+
+# External Services - Maps
+googlemaps==4.10.0
+
+# Utilities
+python-dotenv==1.0.1
+pydantic==2.12.5
+pydantic-settings==2.7.1
