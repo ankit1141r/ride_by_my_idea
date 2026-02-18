@@ -1,4 +1,4 @@
-# Ride-Hailing Platform
+# Ride-Hailing Platform (project_ride_and_pooling)
 
 A web-first ride-hailing platform for intra-city transportation within Indore, built with FastAPI and Python.
 
