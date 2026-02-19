@@ -399,7 +399,7 @@ This implementation plan breaks down the development of two native Android appli
     - Track parcel status
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-  - [ ] 13.4 Build parcel delivery UI for Rider App
+  - [x] 13.4 Build parcel delivery UI for Rider App
     - Create ParcelDeliveryScreen with size selection
     - Add sender/recipient contact forms
     - Display parcel tracking information
