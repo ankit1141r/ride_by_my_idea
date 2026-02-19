@@ -116,6 +116,10 @@ class TokenManager @Inject constructor(
         clearUser()
     }
     
+    fun getUserId(): String? {
+        return getUser()?.id
+    }
+    
     companion object {
         private const val PREFS_NAME = "ride_connect_secure_prefs"
         private const val KEY_AUTH_TOKEN = "auth_token"

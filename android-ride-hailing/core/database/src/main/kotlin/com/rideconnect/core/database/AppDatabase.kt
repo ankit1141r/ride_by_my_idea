@@ -13,7 +13,9 @@ import com.rideconnect.core.database.entity.*
         TransactionEntity::class,
         ChatMessageEntity::class,
         EmergencyContactEntity::class,
-        ParcelDeliveryEntity::class
+        ParcelDeliveryEntity::class,
+        RatingEntity::class,
+        PendingRatingEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -26,6 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun chatMessageDao(): ChatMessageDao
     abstract fun emergencyContactDao(): EmergencyContactDao
     abstract fun parcelDeliveryDao(): ParcelDeliveryDao
+    abstract fun ratingDao(): RatingDao
     
     companion object {
         const val DATABASE_NAME = "rideconnect_database"
