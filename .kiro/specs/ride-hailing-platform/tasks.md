@@ -505,7 +505,7 @@ leta
     - **Property 50: Vehicle update re-verification**
     - **Validates: Requirements 10.6**
 
-- [~] 15. Checkpoint - Payment and vehicle management complete
+- [ ] 15. Checkpoint - Payment and vehicle management complete
   - Ensure all tests pass, ask the user if questions arise.
 
 
