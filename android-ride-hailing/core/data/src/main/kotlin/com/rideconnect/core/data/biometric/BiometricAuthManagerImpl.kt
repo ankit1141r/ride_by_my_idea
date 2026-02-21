@@ -5,7 +5,8 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import com.rideconnect.core.data.local.TokenManager
+import com.rideconnect.core.common.result.Result
+import com.rideconnect.core.data.local.TokenManagerWrapper
 import com.rideconnect.core.domain.biometric.BiometricAuthManager
 import com.rideconnect.core.domain.model.AuthToken
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,7 +20,7 @@ import kotlin.coroutines.resume
  */
 class BiometricAuthManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManagerWrapper
 ) : BiometricAuthManager {
     
     private val biometricManager = BiometricManager.from(context)
@@ -46,19 +47,19 @@ class BiometricAuthManagerImpl @Inject constructor(
     
     override suspend fun authenticateWithBiometric(): Result<Boolean> = suspendCancellableCoroutine { continuation ->
         if (!isBiometricAvailable()) {
-            continuation.resume(Result.failure(BiometricNotAvailableException()))
+            continuation.resume(Result.Error(BiometricNotAvailableException()))
             return@suspendCancellableCoroutine
         }
         
         if (!isBiometricEnabled()) {
-            continuation.resume(Result.failure(BiometricNotEnabledException()))
+            continuation.resume(Result.Error(BiometricNotEnabledException()))
             return@suspendCancellableCoroutine
         }
         
         // Get the current activity context
         val activity = context as? FragmentActivity
         if (activity == null) {
-            continuation.resume(Result.failure(IllegalStateException("Context is not a FragmentActivity")))
+            continuation.resume(Result.Error(IllegalStateException("Context is not a FragmentActivity")))
             return@suspendCancellableCoroutine
         }
         
@@ -77,7 +78,7 @@ class BiometricAuthManagerImpl @Inject constructor(
                     super.onAuthenticationError(errorCode, errString)
                     Timber.e("Biometric authentication error: $errString")
                     if (continuation.isActive) {
-                        continuation.resume(Result.success(false))
+                        continuation.resume(Result.Success(false))
                     }
                 }
                 
@@ -85,7 +86,7 @@ class BiometricAuthManagerImpl @Inject constructor(
                     super.onAuthenticationSucceeded(result)
                     Timber.d("Biometric authentication succeeded")
                     if (continuation.isActive) {
-                        continuation.resume(Result.success(true))
+                        continuation.resume(Result.Success(true))
                     }
                 }
                 

@@ -65,14 +65,13 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             
-            val result = authRepository.sendOtp(phone)
-            
-            result.fold(
-                onSuccess = {
+            when (val result = authRepository.sendOtp(phone)) {
+                is com.rideconnect.core.common.result.Result.Success -> {
                     _authState.value = AuthState.OtpSent(phone)
                     Timber.d("OTP sent successfully to $phone")
-                },
-                onFailure = { error ->
+                }
+                is com.rideconnect.core.common.result.Result.Error -> {
+                    val error = result.exception
                     val errorMessage = when {
                         error.message?.contains("network", ignoreCase = true) == true ->
                             "Network error. Please check your connection and try again."
@@ -81,7 +80,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Error(errorMessage)
                     Timber.e(error, "Failed to send OTP")
                 }
-            )
+            }
         }
     }
     
@@ -97,14 +96,14 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             
-            val result = authRepository.verifyOtp(phone, otpValue)
-            
-            result.fold(
-                onSuccess = { (token, user) ->
+            when (val result = authRepository.verifyOtp(phone, otpValue)) {
+                is com.rideconnect.core.common.result.Result.Success -> {
+                    val (token, user) = result.data
                     _authState.value = AuthState.Authenticated(user, token)
                     Timber.d("OTP verified successfully for user ${user.id}")
-                },
-                onFailure = { error ->
+                }
+                is com.rideconnect.core.common.result.Result.Error -> {
+                    val error = result.exception
                     val errorMessage = when {
                         error.message?.contains("invalid", ignoreCase = true) == true ||
                         error.message?.contains("incorrect", ignoreCase = true) == true ->
@@ -118,7 +117,7 @@ class AuthViewModel @Inject constructor(
                     _authState.value = AuthState.Error(errorMessage)
                     Timber.e(error, "Failed to verify OTP")
                 }
-            )
+            }
         }
     }
     
@@ -144,10 +143,9 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             
-            val result = biometricAuthManager.authenticateWithBiometric()
-            
-            result.fold(
-                onSuccess = { authenticated ->
+            when (val result = biometricAuthManager.authenticateWithBiometric()) {
+                is com.rideconnect.core.common.result.Result.Success -> {
+                    val authenticated = result.data
                     if (authenticated) {
                         // Biometric authentication successful, retrieve stored token
                         val token = authRepository.getStoredToken()
@@ -164,13 +162,14 @@ class AuthViewModel @Inject constructor(
                         _authState.value = AuthState.Unauthenticated
                         Timber.d("Biometric authentication cancelled or failed")
                     }
-                },
-                onFailure = { error ->
+                }
+                is com.rideconnect.core.common.result.Result.Error -> {
+                    val error = result.exception
                     val errorMessage = error.message ?: "Biometric authentication failed. Please try OTP login."
                     _authState.value = AuthState.Error(errorMessage)
                     Timber.e(error, "Biometric authentication error")
                 }
-            )
+            }
         }
     }
     
@@ -211,23 +210,21 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
             
-            val result = authRepository.logout()
-            
-            result.fold(
-                onSuccess = {
+            when (val result = authRepository.logout()) {
+                is com.rideconnect.core.common.result.Result.Success -> {
                     _authState.value = AuthState.Unauthenticated
                     _phoneNumber.value = ""
                     _otp.value = ""
                     Timber.d("Logout successful")
-                },
-                onFailure = { error ->
+                }
+                is com.rideconnect.core.common.result.Result.Error -> {
                     // Even if logout API fails, we still clear local data
                     _authState.value = AuthState.Unauthenticated
                     _phoneNumber.value = ""
                     _otp.value = ""
-                    Timber.e(error, "Logout API failed but local data cleared")
+                    Timber.e(result.exception, "Logout API failed but local data cleared")
                 }
-            )
+            }
         }
     }
     

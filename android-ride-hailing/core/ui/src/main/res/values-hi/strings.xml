@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">राइडकनेक्ट</string>
+    
+    <!-- Authentication -->
+    <string name="login">लॉगिन</string>
+    <string name="phone_number">फ़ोन नंबर</string>
+    <string name="enter_phone_number">अपना फ़ोन नंबर दर्ज करें</string>
+    <string name="send_otp">OTP भेजें</string>
+    <string name="verify_otp">OTP सत्यापित करें</string>
+    <string name="enter_otp">OTP दर्ज करें</string>
+    <string name="otp_sent">OTP सफलतापूर्वक भेजा गया</string>
+    <string name="invalid_phone">अमान्य फ़ोन नंबर</string>
+    <string name="logout">लॉगआउट</string>
+    <string name="use_biometric">बायोमेट्रिक का उपयोग करें</string>
+    
+    <!-- Navigation -->
+    <string name="home">होम</string>
+    <string name="history">इतिहास</string>
+    <string name="profile">प्रोफ़ाइल</string>
+    <string name="settings">सेटिंग्स</string>
+    <string name="earnings">कमाई</string>
+    <string name="ratings">रेटिंग</string>
+    
+    <!-- Ride Request -->
+    <string name="request_ride">राइड का अनुरोध करें</string>
+    <string name="pickup_location">पिकअप स्थान</string>
+    <string name="dropoff_location">ड्रॉपऑफ स्थान</string>
+    <string name="fare_estimate">किराया अनुमान</string>
+    <string name="confirm_ride">राइड की पुष्टि करें</string>
+    <string name="cancel_ride">राइड रद्द करें</string>
+    <string name="searching_driver">ड्राइवर खोज रहे हैं...</string>
+    <string name="driver_found">ड्राइवर मिल गया!</string>
+    
+    <!-- Ride Status -->
+    <string name="ride_requested">राइड का अनुरोध किया गया</string>
+    <string name="driver_arriving">ड्राइवर आ रहा है</string>
+    <string name="driver_arrived">ड्राइवर पहुंच गया</string>
+    <string name="ride_started">राइड शुरू हुई</string>
+    <string name="ride_completed">राइड पूरी हुई</string>
+    <string name="ride_cancelled">राइड रद्द की गई</string>
+    
+    <!-- Driver -->
+    <string name="go_online">ऑनलाइन जाएं</string>
+    <string name="go_offline">ऑफलाइन जाएं</string>
+    <string name="accept_ride">राइड स्वीकार करें</string>
+    <string name="reject_ride">राइड अस्वीकार करें</string>
+    <string name="start_ride">राइड शुरू करें</string>
+    <string name="complete_ride">राइड पूरी करें</string>
+    <string name="new_ride_request">नया राइड अनुरोध</string>
+    
+    <!-- Payment -->
+    <string name="payment">भुगतान</string>
+    <string name="pay_now">अभी भुगतान करें</string>
+    <string name="payment_successful">भुगतान सफल</string>
+    <string name="payment_failed">भुगतान विफल</string>
+    <string name="fare_breakdown">किराया विवरण</string>
+    <string name="base_fare">आधार किराया</string>
+    <string name="distance_charge">दूरी शुल्क</string>
+    <string name="time_charge">समय शुल्क</string>
+    <string name="total_fare">कुल किराया</string>
+    
+    <!-- Rating -->
+    <string name="rate_driver">ड्राइवर को रेट करें</string>
+    <string name="rate_rider">राइडर को रेट करें</string>
+    <string name="submit_rating">रेटिंग सबमिट करें</string>
+    <string name="add_review">समीक्षा जोड़ें (वैकल्पिक)</string>
+    <string name="your_rating">आपकी रेटिंग</string>
+    
+    <!-- Profile -->
+    <string name="edit_profile">प्रोफ़ाइल संपादित करें</string>
+    <string name="name">नाम</string>
+    <string name="email">ईमेल</string>
+    <string name="save">सहेजें</string>
+    <string name="emergency_contacts">आपातकालीन संपर्क</string>
+    <string name="add_contact">संपर्क जोड़ें</string>
+    
+    <!-- Settings -->
+    <string name="appearance">दिखावट</string>
+    <string name="language">भाषा</string>
+    <string name="theme">थीम</string>
+    <string name="notifications">सूचनाएं</string>
+    <string name="notification_preferences">सूचना प्राथमिकताएं</string>
+    <string name="about">के बारे में</string>
+    <string name="app_version">ऐप संस्करण</string>
+    
+    <!-- Language Options -->
+    <string name="english">English</string>
+    <string name="hindi">हिन्दी (Hindi)</string>
+    <string name="system_default">सिस्टम डिफ़ॉल्ट</string>
+    
+    <!-- Theme Options -->
+    <string name="light">लाइट</string>
+    <string name="dark">डार्क</string>
+    
+    <!-- Notifications -->
+    <string name="ride_accepted">राइड स्वीकार की गई</string>
+    <string name="chat_message">चैट संदेश</string>
+    <string name="scheduled_ride_reminder">निर्धारित राइड अनुस्मारक</string>
+    
+    <!-- Emergency -->
+    <string name="emergency">आपातकाल</string>
+    <string name="sos">SOS</string>
+    <string name="activate_sos">SOS सक्रिय करें</string>
+    <string name="share_ride">राइड साझा करें</string>
+    
+    <!-- Scheduled Rides -->
+    <string name="schedule_ride">राइड शेड्यूल करें</string>
+    <string name="scheduled_rides">निर्धारित राइड</string>
+    <string name="select_date_time">तारीख और समय चुनें</string>
+    
+    <!-- Parcel Delivery -->
+    <string name="parcel_delivery">पार्सल डिलीवरी</string>
+    <string name="parcel_size">पार्सल का आकार</string>
+    <string name="small">छोटा</string>
+    <string name="medium">मध्यम</string>
+    <string name="large">बड़ा</string>
+    <string name="sender_details">प्रेषक विवरण</string>
+    <string name="recipient_details">प्राप्तकर्ता विवरण</string>
+    
+    <!-- Common -->
+    <string name="ok">ठीक है</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="yes">हां</string>
+    <string name="no">नहीं</string>
+    <string name="loading">लोड हो रहा है...</string>
+    <string name="error">त्रुटि</string>
+    <string name="retry">पुनः प्रयास करें</string>
+    <string name="search">खोजें</string>
+    <string name="filter">फ़िल्टर</string>
+    <string name="offline">ऑफलाइन</string>
+    <string name="online">ऑनलाइन</string>
+    
+    <!-- Error Messages -->
+    <string name="network_error">नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।</string>
+    <string name="location_permission_required">स्थान अनुमति आवश्यक है</string>
+    <string name="gps_disabled">GPS अक्षम है। कृपया इसे सक्षम करें।</string>
+</resources>

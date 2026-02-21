@@ -17,7 +17,9 @@ import com.rideconnect.core.domain.viewmodel.DriverViewModel
 @Composable
 fun DriverSettingsScreen(
     viewModel: DriverViewModel,
-    onNavigateBack: () -> Unit,
+    onNavigateToNotificationPreferences: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onOpenDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -27,8 +29,8 @@ fun DriverSettingsScreen(
             TopAppBar(
                 title = { Text("Driver Settings") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(Icons.Default.Menu, contentDescription = "Open menu")
                     }
                 }
             )

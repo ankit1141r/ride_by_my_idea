@@ -18,9 +18,8 @@ import com.rideconnect.core.domain.viewmodel.DriverViewModel
 @Composable
 fun DriverHomeScreen(
     viewModel: DriverViewModel,
-    onNavigateToSettings: () -> Unit,
-    onNavigateToEarnings: () -> Unit,
-    onNavigateToRatings: () -> Unit,
+    onNavigateToActiveRide: (String) -> Unit,
+    onOpenDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -32,9 +31,9 @@ fun DriverHomeScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Driver Dashboard") },
-                actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                navigationIcon = {
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(Icons.Default.Menu, contentDescription = "Open menu")
                     }
                 }
             )

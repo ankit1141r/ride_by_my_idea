@@ -118,7 +118,7 @@ class LocationSearchViewModel @Inject constructor(
             
             try {
                 // If place already has coordinates, use it directly
-                if (place.latitude != 0.0 && place.longitude != 0.0) {
+                if (place.location.latitude != 0.0 && place.location.longitude != 0.0) {
                     _selectedPlace.value = place
                     _searchQuery.value = place.name
                     _searchResults.value = emptyList()

@@ -2,9 +2,14 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
-    id("com.google.gms.google-services")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    kotlin("kapt")
+    id("jacoco")
+    id("com.google.devtools.ksp")
+}
+
+// Apply Google Services plugin only for prod builds
+if (gradle.startParameter.taskRequests.toString().contains("Prod")) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 android {
@@ -22,10 +27,6 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        // Backend API configuration
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/\"")
-        buildConfigField("String", "WS_URL", "\"ws://10.0.2.2:8000/ws\"")
     }
 
     buildTypes {
@@ -36,9 +37,38 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Signing configuration should be added here
+            // signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+    }
+    
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/api/\"")
+            buildConfigField("String", "WS_URL", "\"ws://10.0.2.2:8000/ws\"")
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            buildConfigField("String", "BASE_URL", "\"https://staging-api.rideconnect.com/api/\"")
+            buildConfigField("String", "WS_URL", "\"wss://staging-api.rideconnect.com/ws\"")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"https://api.rideconnect.com/api/\"")
+            buildConfigField("String", "WS_URL", "\"wss://api.rideconnect.com/ws\"")
         }
     }
 
@@ -73,10 +103,11 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:network"))
     implementation(project(":core:database"))
-    implementation(project(":core:common"))
+    implementation(project(":core:ui"))
 
     // AndroidX Core
     implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.1")
 
@@ -93,7 +124,7 @@ dependencies {
 
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    ksp("com.google.dagger:hilt-android-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Retrofit & OkHttp
@@ -105,7 +136,7 @@ dependencies {
     // Room Database
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 
     // Google Maps & Location
     implementation("com.google.android.gms:play-services-maps:18.2.0")
@@ -133,6 +164,9 @@ dependencies {
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
+    // Timber for logging
+    implementation("com.jakewharton.timber:timber:5.0.1")
+    
     // Accompanist (Compose utilities)
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
@@ -150,8 +184,4 @@ dependencies {
     
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-}
-
-kapt {
-    correctErrorTypes = true
 }

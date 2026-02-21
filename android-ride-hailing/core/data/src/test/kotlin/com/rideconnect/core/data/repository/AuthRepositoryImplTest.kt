@@ -1,6 +1,6 @@
 package com.rideconnect.core.data.repository
 
-import com.rideconnect.core.data.local.TokenManager
+import com.rideconnect.core.data.local.TokenManagerWrapper
 import com.rideconnect.core.domain.model.AuthToken
 import com.rideconnect.core.domain.model.User
 import com.rideconnect.core.domain.model.UserType

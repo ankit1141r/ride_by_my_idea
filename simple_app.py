@@ -58,10 +58,6 @@ class RideRequest(BaseModel):
     dropoff_lat: Optional[float] = 22.7532
     dropoff_lon: Optional[float] = 75.8937
 
-# Mount static files
-if os.path.exists("web"):
-    app.mount("/web", StaticFiles(directory="web"), name="web")
-
 @app.get("/")
 async def root():
     """Root endpoint - redirect to web interface."""
@@ -283,6 +279,15 @@ async def serve_web_app():
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Web interface not found")
 
+@app.get("/web/index.html", response_class=HTMLResponse)
+async def serve_index():
+    """Serve the main web application."""
+    try:
+        with open("web/index.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Web interface not found")
+
 # Sample API endpoints for demonstration
 @app.get("/api/demo/users")
 async def get_demo_users():
@@ -332,6 +337,10 @@ async def get_demo_stats():
         "active_rides": 5,
         "total_revenue": 25000
     }
+
+# Mount static files AFTER all route definitions
+if os.path.exists("web"):
+    app.mount("/web", StaticFiles(directory="web", html=True), name="web")
 
 if __name__ == "__main__":
     import uvicorn

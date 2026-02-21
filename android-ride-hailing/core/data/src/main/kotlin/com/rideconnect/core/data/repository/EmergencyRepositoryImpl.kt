@@ -1,7 +1,7 @@
 package com.rideconnect.core.data.repository
 
 import com.rideconnect.core.common.result.Result
-import com.rideconnect.core.data.local.TokenManager
+import com.rideconnect.core.data.local.TokenManagerWrapper
 import com.rideconnect.core.database.dao.EmergencyContactDao
 import com.rideconnect.core.database.entity.EmergencyContactEntity
 import com.rideconnect.core.domain.model.EmergencyContact
@@ -28,7 +28,7 @@ import javax.inject.Singleton
 class EmergencyRepositoryImpl @Inject constructor(
     private val emergencyApi: EmergencyApi,
     private val emergencyContactDao: EmergencyContactDao,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManagerWrapper
 ) : EmergencyRepository {
     
     /**
@@ -50,10 +50,10 @@ class EmergencyRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 Result.Success(Unit)
             } else {
-                Result.Error("Failed to trigger SOS: ${response.code()}")
+                Result.Error(Exception("Failed to trigger SOS: ${response.code()}"))
             }
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to trigger SOS")
+            Result.Error(e)
         }
     }
     
@@ -65,7 +65,7 @@ class EmergencyRepositoryImpl @Inject constructor(
     override suspend fun addEmergencyContact(contact: EmergencyContact): Result<EmergencyContact> {
         return try {
             val currentUserId = tokenManager.getUserId() 
-                ?: return Result.Error("User not authenticated")
+                ?: return Result.Error(Exception("User not authenticated"))
             
             val request = EmergencyContactRequestDto(
                 name = contact.name,
@@ -90,10 +90,10 @@ class EmergencyRepositoryImpl @Inject constructor(
                 
                 Result.Success(entity.toDomainModel())
             } else {
-                Result.Error("Failed to add emergency contact: ${response.code()}")
+                Result.Error(Exception("Failed to add emergency contact: ${response.code()}"))
             }
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to add emergency contact")
+            Result.Error(e)
         }
     }
     
@@ -111,10 +111,10 @@ class EmergencyRepositoryImpl @Inject constructor(
                 emergencyContactDao.deleteContactById(contactId)
                 Result.Success(Unit)
             } else {
-                Result.Error("Failed to remove emergency contact: ${response.code()}")
+                Result.Error(Exception("Failed to remove emergency contact: ${response.code()}"))
             }
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to remove emergency contact")
+            Result.Error(e)
         }
     }
     
@@ -156,10 +156,10 @@ class EmergencyRepositoryImpl @Inject constructor(
                 )
                 Result.Success(shareLink)
             } else {
-                Result.Error("Failed to share ride: ${response.code()}")
+                Result.Error(Exception("Failed to share ride: ${response.code()}"))
             }
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to share ride")
+            Result.Error(e)
         }
     }
     

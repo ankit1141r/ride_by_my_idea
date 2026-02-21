@@ -14,6 +14,7 @@ import com.rideconnect.core.network.api.RideApi
 import com.rideconnect.core.network.api.ScheduledRideApi
 import com.rideconnect.core.network.interceptor.AuthInterceptor
 import com.rideconnect.core.network.interceptor.ErrorInterceptor
+import com.rideconnect.core.network.security.CertificatePinnerConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -63,6 +64,10 @@ object NetworkModule {
             .connectTimeout(API_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .readTimeout(API_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(API_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+            // Add certificate pinning for production
+            // Requirements: 24.2
+            // Note: Use CertificatePinnerConfig.createDevelopmentPinner() for debug builds
+            .certificatePinner(CertificatePinnerConfig.createCertificatePinner())
             .build()
     }
     

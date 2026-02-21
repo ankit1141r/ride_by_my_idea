@@ -23,6 +23,22 @@ data class Driver(
 )
 
 /**
+ * Emergency contact data model.
+ * Requirements: 9.7
+ */
+data class EmergencyContact(
+    val id: String,
+    val name: String,
+    val phoneNumber: String,
+    val relationship: String?
+) {
+    init {
+        require(name.isNotBlank()) { "Name cannot be blank" }
+        require(phoneNumber.isNotBlank()) { "Phone number cannot be blank" }
+    }
+}
+
+/**
  * Vehicle details for a driver.
  * Requirements: 2.5
  */

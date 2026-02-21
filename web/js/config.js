@@ -51,6 +51,7 @@ const WS_CONFIG = {
 const APP_CONFIG = {
     NAME: 'RideConnect',
     VERSION: '1.0.0',
+    GOOGLE_MAPS_API_KEY: '', // Add your Google Maps API key here
     INDORE_BOUNDS: {
         LAT_MIN: 22.6,
         LAT_MAX: 22.8,

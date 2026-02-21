@@ -1,5 +1,6 @@
 package com.rideconnect.core.domain.biometric
 
+import com.rideconnect.core.common.result.Result
 import com.rideconnect.core.domain.model.AuthToken
 
 /**

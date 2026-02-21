@@ -18,62 +18,6 @@ data class AvailabilityRequestDto(
 )
 
 /**
- * DTO for earnings response.
- * Requirements: 14.1, 14.2, 14.3, 14.4
- */
-data class EarningsResponseDto(
-    @SerializedName("total_earnings")
-    val totalEarnings: Double,
-    
-    @SerializedName("today_earnings")
-    val todayEarnings: Double,
-    
-    @SerializedName("week_earnings")
-    val weekEarnings: Double,
-    
-    @SerializedName("month_earnings")
-    val monthEarnings: Double,
-    
-    @SerializedName("total_rides")
-    val totalRides: Int,
-    
-    @SerializedName("average_fare")
-    val averageFare: Double,
-    
-    @SerializedName("pending_earnings")
-    val pendingEarnings: Double,
-    
-    @SerializedName("rides")
-    val rides: List<EarningsRideDto>
-)
-
-/**
- * DTO for earnings ride entry.
- */
-data class EarningsRideDto(
-    @SerializedName("ride_id")
-    val rideId: String,
-    
-    @SerializedName("date")
-    val date: String,
-    
-    @SerializedName("fare")
-    val fare: Double,
-    
-    @SerializedName("distance")
-    val distance: Double?,
-    
-    @SerializedName("duration")
-    val duration: Int?,
-    
-    @SerializedName("pickup_address")
-    val pickupAddress: String?,
-    
-    @SerializedName("dropoff_address")
-    val dropoffAddress: String?
-)
-
-/**
  * DTO for driver performance metrics.
  * Requirements: 16.1, 16.2, 16.3
  */
@@ -106,7 +50,7 @@ data class DriverPerformanceDto(
 /**
  * DTO for driver details.
  */
-data class DriverDto(
+data class DriverDetailsDto(
     @SerializedName("id")
     val id: String,
     

@@ -26,7 +26,8 @@ data class DriverUiState(
 @HiltViewModel
 class DriverViewModel @Inject constructor(
     private val driverRideRepository: DriverRideRepository,
-    private val parcelRepository: ParcelRepository
+    private val parcelRepository: ParcelRepository,
+    private val earningsRepository: com.rideconnect.core.domain.repository.EarningsRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(DriverUiState())
@@ -60,6 +61,7 @@ class DriverViewModel @Inject constructor(
     private fun observeRideRequests() {
         viewModelScope.launch {
             driverRideRepository.observeRideRequests()
+                .filterNotNull() // Filter out null values
                 .collect { request ->
                     _uiState.update { state ->
                         // If there's already an incoming request being displayed, queue the new one
@@ -111,7 +113,7 @@ class DriverViewModel @Inject constructor(
                 .onSuccess {
                     _uiState.update { it.copy(isOnline = newStatus, isLoading = false) }
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -144,7 +146,7 @@ class DriverViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -167,7 +169,7 @@ class DriverViewModel @Inject constructor(
                     // Show next queued request after rejection
                     showNextQueuedRequest()
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -195,7 +197,7 @@ class DriverViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -228,7 +230,7 @@ class DriverViewModel @Inject constructor(
                 .onSuccess {
                     _uiState.update { it.copy(isLoading = false) }
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -252,7 +254,7 @@ class DriverViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -273,7 +275,7 @@ class DriverViewModel @Inject constructor(
                 .onSuccess {
                     _uiState.update { it.copy(isLoading = false) }
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -298,8 +300,11 @@ class DriverViewModel @Inject constructor(
                             isLoading = false
                         )
                     }
+                    // Refresh earnings after ride completion
+                    // Requirements: 14.3
+                    refreshEarnings()
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -307,6 +312,18 @@ class DriverViewModel @Inject constructor(
                         )
                     }
                 }
+        }
+    }
+    
+    /**
+     * Refresh earnings data after ride completion.
+     * Requirements: 14.3
+     */
+    private fun refreshEarnings() {
+        viewModelScope.launch {
+            // Sync earnings with backend to get updated data
+            val driverId = "current_driver_id" // TODO: Get from auth state
+            earningsRepository.syncEarnings(driverId)
         }
     }
     
@@ -325,7 +342,7 @@ class DriverViewModel @Inject constructor(
                         )
                     }
                 }
-                .onFailure { exception ->
+                .onError { exception ->
                     _uiState.update { 
                         it.copy(
                             isLoading = false,
@@ -335,7 +352,6 @@ class DriverViewModel @Inject constructor(
                 }
         }
     }
-}
 
     /**
      * Rate a rider after ride completion.
@@ -358,3 +374,4 @@ class DriverViewModel @Inject constructor(
             ride.status == com.rideconnect.core.domain.model.RideStatus.COMPLETED
         } ?: false
     }
+}

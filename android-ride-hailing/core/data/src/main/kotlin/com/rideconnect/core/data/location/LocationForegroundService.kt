@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.rideconnect.core.domain.location.LocationRepository
 import com.rideconnect.core.domain.location.LocationService
 import com.rideconnect.core.domain.model.Location
 import dagger.hilt.android.AndroidEntryPoint

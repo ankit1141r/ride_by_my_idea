@@ -86,7 +86,7 @@ class EmergencyViewModel @Inject constructor(
                     Timber.d("SOS triggered successfully for ride: $rideId")
                 }
                 is Result.Error -> {
-                    _sosState.value = SOSState.Error(result.message)
+                    _sosState.value = SOSState.Error(result.message ?: "Unknown error")
                     _error.value = result.message
                     Timber.e("Failed to trigger SOS: ${result.message}")
                 }
@@ -112,7 +112,7 @@ class EmergencyViewModel @Inject constructor(
                     _addContactState.value = AddContactState.Idle
                 }
                 is Result.Error -> {
-                    _addContactState.value = AddContactState.Error(result.message)
+                    _addContactState.value = AddContactState.Error(result.message ?: "Unknown error")
                     _error.value = result.message
                     Timber.e("Failed to add emergency contact: ${result.message}")
                 }
@@ -154,7 +154,7 @@ class EmergencyViewModel @Inject constructor(
                     Timber.d("Ride shared successfully: ${result.data.shareUrl}")
                 }
                 is Result.Error -> {
-                    _shareRideState.value = ShareRideState.Error(result.message)
+                    _shareRideState.value = ShareRideState.Error(result.message ?: "Unknown error")
                     _error.value = result.message
                     Timber.e("Failed to share ride: ${result.message}")
                 }

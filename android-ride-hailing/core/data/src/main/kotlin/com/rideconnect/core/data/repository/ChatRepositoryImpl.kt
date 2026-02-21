@@ -1,7 +1,7 @@
 package com.rideconnect.core.data.repository
 
 import com.rideconnect.core.common.result.Result
-import com.rideconnect.core.data.local.TokenManager
+import com.rideconnect.core.data.local.TokenManagerWrapper
 import com.rideconnect.core.database.dao.ChatMessageDao
 import com.rideconnect.core.database.entity.ChatMessageEntity
 import com.rideconnect.core.domain.model.ChatMessage
@@ -26,7 +26,7 @@ import javax.inject.Singleton
 class ChatRepositoryImpl @Inject constructor(
     private val chatMessageDao: ChatMessageDao,
     private val webSocketManager: WebSocketManager,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManagerWrapper
 ) : ChatRepository {
     
     /**
@@ -39,7 +39,7 @@ class ChatRepositoryImpl @Inject constructor(
         return try {
             val messageId = UUID.randomUUID().toString()
             val timestamp = System.currentTimeMillis()
-            val currentUserId = tokenManager.getUserId() ?: return Result.Error("User not authenticated")
+            val currentUserId = tokenManager.getUserId() ?: return Result.Error(Exception("User not authenticated"))
             
             // Create chat message
             val chatMessage = ChatMessage(
@@ -73,7 +73,7 @@ class ChatRepositoryImpl @Inject constructor(
             
             Result.Success(chatMessage)
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to send message")
+            Result.Error(e)
         }
     }
     
@@ -108,7 +108,7 @@ class ChatRepositoryImpl @Inject constructor(
             
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to mark message as read")
+            Result.Error(e)
         }
     }
     
@@ -119,14 +119,14 @@ class ChatRepositoryImpl @Inject constructor(
      */
     override suspend fun markAllAsRead(rideId: String): Result<Unit> {
         return try {
-            val currentUserId = tokenManager.getUserId() ?: return Result.Error("User not authenticated")
+            val currentUserId = tokenManager.getUserId() ?: return Result.Error(Exception("User not authenticated"))
             
             // Update all messages from other users to READ status
             chatMessageDao.markAllMessagesAsRead(rideId, currentUserId, MessageStatus.READ.name)
             
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to mark messages as read")
+            Result.Error(e)
         }
     }
     
@@ -152,7 +152,7 @@ class ChatRepositoryImpl @Inject constructor(
             // Chat functionality will be disabled in the UI layer
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to archive chat")
+            Result.Error(e)
         }
     }
     
@@ -163,7 +163,7 @@ class ChatRepositoryImpl @Inject constructor(
      */
     override suspend fun syncPendingMessages(): Result<Unit> {
         return try {
-            val currentUserId = tokenManager.getUserId() ?: return Result.Error("User not authenticated")
+            val currentUserId = tokenManager.getUserId() ?: return Result.Error(Exception("User not authenticated"))
             
             // Get all messages with SENT status (not delivered)
             // This would require a query to get pending messages
@@ -171,7 +171,7 @@ class ChatRepositoryImpl @Inject constructor(
             
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Failed to sync pending messages")
+            Result.Error(e)
         }
     }
     

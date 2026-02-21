@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rideconnect.core.domain.viewmodel.AuthState
 import com.rideconnect.core.domain.viewmodel.AuthViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onNavigateToOtpVerification: () -> Unit,
@@ -123,7 +124,7 @@ fun LoginScreen(
             if (isBiometricAvailable && isBiometricEnabled) {
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                Divider(modifier = Modifier.padding(vertical = 16.dp))
                 
                 Text(
                     text = "Or",

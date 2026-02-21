@@ -134,7 +134,7 @@ class ChatViewModel @Inject constructor(
                     _sendMessageState.value = SendMessageState.Idle
                 }
                 is Result.Error -> {
-                    _sendMessageState.value = SendMessageState.Error(result.message)
+                    _sendMessageState.value = SendMessageState.Error(result.message ?: "Unknown error")
                     _error.value = result.message
                     Timber.e("Failed to send message: ${result.message}")
                 }

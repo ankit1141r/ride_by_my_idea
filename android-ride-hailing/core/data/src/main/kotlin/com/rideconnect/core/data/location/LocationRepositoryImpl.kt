@@ -39,7 +39,7 @@ class LocationRepositoryImpl @Inject constructor(
                 val request = LocationUpdateRequest(
                     latitude = location.latitude,
                     longitude = location.longitude,
-                    accuracy = location.accuracy,
+                    accuracy = location.accuracy ?: 0f,
                     timestamp = location.timestamp
                 )
                 locationApi.updateDriverLocation(request)
@@ -114,12 +114,14 @@ class GooglePlacesClient @Inject constructor(
                     .apply {
                         // Bias results to user's location if available
                         location?.let {
+                                location?.let { loc ->
                             setLocationBias(
                                 RectangularBounds.newInstance(
-                                    LatLng(it.latitude - 0.1, it.longitude - 0.1),
-                                    LatLng(it.latitude + 0.1, it.longitude + 0.1)
+                                    LatLng(loc.latitude - 0.1, loc.longitude - 0.1),
+                                    LatLng(loc.latitude + 0.1, loc.longitude + 0.1)
                                 )
                             )
+                        }
                         }
                     }
                     .setCountries(listOf("IN")) // Restrict to India
@@ -132,8 +134,10 @@ class GooglePlacesClient @Inject constructor(
                         placeId = prediction.placeId,
                         name = prediction.getPrimaryText(null).toString(),
                         address = prediction.getFullText(null).toString(),
-                        latitude = 0.0, // Will be fetched when place is selected
-                        longitude = 0.0
+                        location = Location(
+                            latitude = 0.0, // Will be fetched when place is selected
+                            longitude = 0.0
+                        )
                     )
                 }
             } catch (e: Exception) {
@@ -163,8 +167,10 @@ class GooglePlacesClient @Inject constructor(
                     placeId = place.id ?: placeId,
                     name = place.name ?: "",
                     address = place.address ?: "",
-                    latitude = latLng.latitude,
-                    longitude = latLng.longitude
+                    location = Location(
+                        latitude = latLng.latitude,
+                        longitude = latLng.longitude
+                    )
                 )
             } catch (e: Exception) {
                 Timber.e(e, "Error fetching place details")

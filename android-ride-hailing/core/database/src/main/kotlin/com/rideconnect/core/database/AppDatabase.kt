@@ -15,9 +15,11 @@ import com.rideconnect.core.database.entity.*
         EmergencyContactEntity::class,
         ParcelDeliveryEntity::class,
         RatingEntity::class,
-        PendingRatingEntity::class
+        PendingRatingEntity::class,
+        EarningsEntity::class,
+        SyncActionEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -29,6 +31,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun emergencyContactDao(): EmergencyContactDao
     abstract fun parcelDeliveryDao(): ParcelDeliveryDao
     abstract fun ratingDao(): RatingDao
+    abstract fun earningsDao(): EarningsDao
+    abstract fun syncActionDao(): SyncActionDao
     
     companion object {
         const val DATABASE_NAME = "rideconnect_database"

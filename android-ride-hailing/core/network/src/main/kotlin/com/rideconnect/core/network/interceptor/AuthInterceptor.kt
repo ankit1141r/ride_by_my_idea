@@ -1,6 +1,6 @@
 package com.rideconnect.core.network.interceptor
 
-import com.rideconnect.core.data.local.TokenManager
+import com.rideconnect.core.common.local.TokenManager
 import okhttp3.Interceptor
 import okhttp3.Response
 import timber.log.Timber
@@ -18,7 +18,7 @@ class AuthInterceptor @Inject constructor(
         val originalRequest = chain.request()
         
         // Get the stored access token
-        val token = tokenManager.getToken()
+        val token = tokenManager.getAccessToken()
         
         // If no token, proceed without authentication header
         if (token == null) {
@@ -28,7 +28,7 @@ class AuthInterceptor @Inject constructor(
         
         // Add Authorization header with Bearer token
         val authenticatedRequest = originalRequest.newBuilder()
-            .header("Authorization", "Bearer ${token.accessToken}")
+            .header("Authorization", "Bearer $token")
             .build()
         
         Timber.d("Added Authorization header to request: ${originalRequest.url}")

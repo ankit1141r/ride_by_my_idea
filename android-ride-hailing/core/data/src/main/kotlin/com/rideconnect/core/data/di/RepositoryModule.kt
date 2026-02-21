@@ -6,22 +6,27 @@ import com.rideconnect.core.data.location.LocationRepositoryImpl
 import com.rideconnect.core.data.location.LocationServiceImpl
 import com.rideconnect.core.data.location.PlacesClient
 import com.rideconnect.core.data.repository.AuthRepositoryImpl
+import com.rideconnect.core.data.repository.EarningsRepositoryImpl
 import com.rideconnect.core.data.repository.ParcelRepositoryImpl
 import com.rideconnect.core.data.repository.ProfileRepositoryImpl
 import com.rideconnect.core.data.repository.RideRepositoryImpl
 import com.rideconnect.core.data.repository.ScheduledRideRepositoryImpl
+import com.rideconnect.core.data.repository.SettingsRepositoryImpl
 import com.rideconnect.core.data.websocket.WebSocketManagerImpl
 import com.rideconnect.core.domain.biometric.BiometricAuthManager
 import com.rideconnect.core.domain.location.LocationRepository
 import com.rideconnect.core.domain.location.LocationService
 import com.rideconnect.core.domain.repository.AuthRepository
+import com.rideconnect.core.domain.repository.EarningsRepository
 import com.rideconnect.core.domain.repository.ParcelRepository
 import com.rideconnect.core.domain.repository.ProfileRepository
 import com.rideconnect.core.domain.repository.RideRepository
 import com.rideconnect.core.domain.repository.ScheduledRideRepository
+import com.rideconnect.core.domain.repository.SettingsRepository
 import com.rideconnect.core.domain.websocket.WebSocketManager
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -89,4 +94,36 @@ abstract class RepositoryModule {
     abstract fun bindParcelRepository(
         parcelRepositoryImpl: ParcelRepositoryImpl
     ): ParcelRepository
+    
+    @Binds
+    @Singleton
+    abstract fun bindEarningsRepository(
+        earningsRepositoryImpl: EarningsRepositoryImpl
+    ): EarningsRepository
+    
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(
+        settingsRepositoryImpl: SettingsRepositoryImpl
+    ): SettingsRepository
+}
+
+
+@Module
+@InstallIn(SingletonComponent::class)
+object FirebaseModule {
+    
+    @Provides
+    @Singleton
+    fun provideFirebaseMessaging(): com.google.firebase.messaging.FirebaseMessaging {
+        return com.google.firebase.messaging.FirebaseMessaging.getInstance()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideNotificationManager(
+        @dagger.hilt.android.qualifiers.ApplicationContext context: android.content.Context
+    ): android.app.NotificationManager {
+        return context.getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+    }
 }

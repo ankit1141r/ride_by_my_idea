@@ -32,7 +32,7 @@ fun DriverRatingsScreen(
     acceptanceRate: Double,
     cancellationRate: Double,
     completionRate: Double,
-    onNavigateBack: () -> Unit,
+    onOpenDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -40,8 +40,8 @@ fun DriverRatingsScreen(
             TopAppBar(
                 title = { Text("Ratings & Performance") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(Icons.Default.Menu, contentDescription = "Open menu")
                     }
                 }
             )

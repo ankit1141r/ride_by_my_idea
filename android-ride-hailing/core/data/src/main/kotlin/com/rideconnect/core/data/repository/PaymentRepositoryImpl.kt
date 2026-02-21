@@ -1,10 +1,8 @@
 package com.rideconnect.core.data.repository
 
-import com.rideconnect.core.common.network.safeApiCall
 import com.rideconnect.core.common.result.Result
-import com.rideconnect.core.data.mapper.toDto
-import com.rideconnect.core.data.mapper.toReceipt
-import com.rideconnect.core.data.mapper.toTransaction
+import com.rideconnect.core.data.mapper.PaymentMapper
+import com.rideconnect.core.data.network.safeApiCall
 import com.rideconnect.core.database.dao.TransactionDao
 import com.rideconnect.core.database.entity.TransactionEntity
 import com.rideconnect.core.domain.model.PaymentRequest
@@ -32,15 +30,14 @@ class PaymentRepositoryImpl @Inject constructor(
      * Requirements: 7.2
      */
     override suspend fun processPayment(request: PaymentRequest): Result<Transaction> {
-        return safeApiCall {
-            paymentApi.processPayment(request.toDto())
-        }.map { transactionDto ->
-            val transaction = transactionDto.toTransaction()
-            
-            // Store transaction in local database
-            transactionDao.insertTransaction(transaction.toEntity())
-            
-            transaction
+        return when (val result = safeApiCall { paymentApi.processPayment(PaymentMapper.toDto(request)) }) {
+            is Result.Success -> {
+                val transaction = PaymentMapper.toTransaction(result.data)
+                // Store transaction in local database
+                transactionDao.insertTransaction(PaymentMapper.toEntity(transaction))
+                Result.Success(transaction)
+            }
+            is Result.Error -> Result.Error(result.exception)
         }
     }
     
@@ -49,17 +46,16 @@ class PaymentRepositoryImpl @Inject constructor(
      * Requirements: 7.5
      */
     override suspend fun getPaymentHistory(page: Int, pageSize: Int): Result<List<Transaction>> {
-        return safeApiCall {
-            paymentApi.getPaymentHistory(page, pageSize)
-        }.map { transactionDtos ->
-            val transactions = transactionDtos.map { it.toTransaction() }
-            
-            // Store transactions in local database
-            transactions.forEach { transaction ->
-                transactionDao.insertTransaction(transaction.toEntity())
+        return when (val result = safeApiCall { paymentApi.getPaymentHistory(page, pageSize) }) {
+            is Result.Success -> {
+                val transactions = result.data.map { PaymentMapper.toTransaction(it) }
+                // Store transactions in local database
+                transactions.forEach { transaction ->
+                    transactionDao.insertTransaction(PaymentMapper.toEntity(transaction))
+                }
+                Result.Success(transactions)
             }
-            
-            transactions
+            is Result.Error -> Result.Error(result.exception)
         }
     }
     
@@ -68,10 +64,9 @@ class PaymentRepositoryImpl @Inject constructor(
      * Requirements: 7.3, 7.6
      */
     override suspend fun getReceipt(transactionId: String): Result<Receipt> {
-        return safeApiCall {
-            paymentApi.getReceipt(transactionId)
-        }.map { receiptDto ->
-            receiptDto.toReceipt()
+        return when (val result = safeApiCall { paymentApi.getReceipt(transactionId) }) {
+            is Result.Success -> Result.Success(PaymentMapper.toReceipt(result.data))
+            is Result.Error -> Result.Error(result.exception)
         }
     }
     

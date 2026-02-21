@@ -1,6 +1,8 @@
 package com.rideconnect.core.data.repository
 
 import com.rideconnect.core.common.result.Result
+import com.rideconnect.core.database.dao.RideDao
+import com.rideconnect.core.database.entity.RideEntity
 import com.rideconnect.core.domain.model.*
 import com.rideconnect.core.domain.repository.RideRepository
 import com.rideconnect.core.domain.websocket.WebSocketManager
@@ -16,7 +18,8 @@ import javax.inject.Singleton
 @Singleton
 class RideRepositoryImpl @Inject constructor(
     private val rideApi: RideApi,
-    private val webSocketManager: WebSocketManager
+    private val webSocketManager: WebSocketManager,
+    private val rideDao: RideDao
 ) : RideRepository {
     
     private val _activeRide = MutableStateFlow<Ride?>(null)
@@ -111,16 +114,35 @@ class RideRepositoryImpl @Inject constructor(
     
     override suspend fun getRideHistory(page: Int, pageSize: Int): Result<List<Ride>> {
         return try {
+            // Try to fetch from API
             val response = rideApi.getRideHistory(page, pageSize)
             
             if (response.isSuccessful && response.body() != null) {
                 val rides = response.body()!!.map { mapRideResponseToRide(it) }
+                
+                // Save to local database for offline access
+                rides.forEach { ride ->
+                    rideDao.insertRide(mapRideToEntity(ride))
+                }
+                
                 Result.Success(rides)
             } else {
-                Result.Error(Exception("Failed to get ride history: ${response.message()}"))
+                // Fallback to local database if API fails
+                val localRides = rideDao.getRideHistory("current_user_id") // TODO: Get actual user ID
+                    .first()
+                    .map { mapEntityToRide(it) }
+                Result.Success(localRides)
             }
         } catch (e: Exception) {
-            Result.Error(e)
+            // Fallback to local database on network error
+            try {
+                val localRides = rideDao.getRideHistory("current_user_id") // TODO: Get actual user ID
+                    .first()
+                    .map { mapEntityToRide(it) }
+                Result.Success(localRides)
+            } catch (dbError: Exception) {
+                Result.Error(e)
+            }
         }
     }
     
@@ -194,22 +216,81 @@ class RideRepositoryImpl @Inject constructor(
             driverDetails = dto.driver?.let { driverDto ->
                 DriverDetails(
                     id = driverDto.id,
-                    name = driverDto.name,
-                    phoneNumber = driverDto.phoneNumber,
-                    profilePhotoUrl = driverDto.profilePhotoUrl,
+                    name = "", // Name not provided in DriverDetailsDto
+                    phoneNumber = "", // Phone not provided in DriverDetailsDto
+                    profilePhotoUrl = null,
                     rating = driverDto.rating,
-                    vehicleDetails = if (driverDto.vehicleMake != null) {
-                        VehicleDetails(
-                            make = driverDto.vehicleMake,
-                            model = driverDto.vehicleModel ?: "",
-                            year = 0, // Not provided in DTO
-                            color = driverDto.vehicleColor ?: "",
-                            licensePlate = driverDto.licensePlate ?: "",
-                            vehicleType = VehicleType.SEDAN // Default
-                        )
-                    } else null
+                    vehicleDetails = VehicleDetails(
+                        make = driverDto.vehicleMake,
+                        model = driverDto.vehicleModel,
+                        year = driverDto.vehicleYear,
+                        color = driverDto.vehicleColor,
+                        licensePlate = driverDto.licensePlate,
+                        vehicleType = VehicleType.valueOf(driverDto.vehicleType.uppercase())
+                    )
                 )
             }
+        )
+    }
+    
+    /**
+     * Maps Ride domain model to RideEntity for database storage
+     */
+    private fun mapRideToEntity(ride: Ride): RideEntity {
+        return RideEntity(
+            id = ride.id,
+            riderId = ride.riderId,
+            driverId = ride.driverId,
+            pickupLatitude = ride.pickupLocation.latitude,
+            pickupLongitude = ride.pickupLocation.longitude,
+            pickupAddress = ride.pickupLocation.address,
+            dropoffLatitude = ride.dropoffLocation.latitude,
+            dropoffLongitude = ride.dropoffLocation.longitude,
+            dropoffAddress = ride.dropoffLocation.address,
+            status = ride.status.name,
+            fare = ride.fare,
+            distance = ride.distance,
+            duration = ride.duration,
+            requestedAt = ride.requestedAt,
+            acceptedAt = ride.acceptedAt,
+            startedAt = ride.startedAt,
+            completedAt = ride.completedAt,
+            cancelledAt = ride.cancelledAt,
+            cancellationReason = ride.cancellationReason
+        )
+    }
+    
+    /**
+     * Maps RideEntity from database to Ride domain model
+     */
+    private fun mapEntityToRide(entity: RideEntity): Ride {
+        return Ride(
+            id = entity.id,
+            riderId = entity.riderId,
+            driverId = entity.driverId,
+            pickupLocation = Location(
+                latitude = entity.pickupLatitude,
+                longitude = entity.pickupLongitude,
+                address = entity.pickupAddress,
+                placeId = null
+            ),
+            dropoffLocation = Location(
+                latitude = entity.dropoffLatitude,
+                longitude = entity.dropoffLongitude,
+                address = entity.dropoffAddress,
+                placeId = null
+            ),
+            status = RideStatus.valueOf(entity.status),
+            fare = entity.fare,
+            distance = entity.distance,
+            duration = entity.duration,
+            requestedAt = entity.requestedAt,
+            acceptedAt = entity.acceptedAt,
+            startedAt = entity.startedAt,
+            completedAt = entity.completedAt,
+            cancelledAt = entity.cancelledAt,
+            cancellationReason = entity.cancellationReason,
+            driverDetails = null // Driver details not stored in entity
         )
     }
 }

@@ -1,22 +1,6 @@
 package com.rideconnect.core.domain.model
 
 /**
- * Emergency contact data model.
- * Requirements: 9.7
- */
-data class EmergencyContact(
-    val id: String,
-    val name: String,
-    val phoneNumber: String,
-    val relationship: String?
-) {
-    init {
-        require(name.isNotBlank()) { "Name cannot be blank" }
-        require(phoneNumber.isNotBlank()) { "Phone number cannot be blank" }
-    }
-}
-
-/**
  * SOS request data model.
  * Requirements: 9.1, 9.2
  */

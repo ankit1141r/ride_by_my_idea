@@ -1,6 +1,7 @@
 package com.rideconnect.core.data.repository
 
-import com.rideconnect.core.data.local.TokenManager
+import com.rideconnect.core.common.result.Result
+import com.rideconnect.core.data.local.TokenManagerWrapper
 import com.rideconnect.core.data.mapper.toDomain
 import com.rideconnect.core.domain.model.AuthToken
 import com.rideconnect.core.domain.model.User
@@ -17,7 +18,7 @@ import javax.inject.Singleton
 @Singleton
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManagerWrapper
 ) : AuthRepository {
     
     override suspend fun sendOtp(phoneNumber: String): Result<Unit> {
@@ -25,15 +26,15 @@ class AuthRepositoryImpl @Inject constructor(
             val response = authApi.sendOtp(SendOtpRequest(phoneNumber))
             if (response.isSuccessful) {
                 Timber.d("OTP sent successfully to $phoneNumber")
-                Result.success(Unit)
+                Result.Success(Unit)
             } else {
                 val errorMessage = response.errorBody()?.string() ?: "Failed to send OTP"
                 Timber.e("Failed to send OTP: $errorMessage")
-                Result.failure(Exception(errorMessage))
+                Result.Error(Exception(errorMessage))
             }
         } catch (e: Exception) {
             Timber.e(e, "Error sending OTP")
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -55,15 +56,15 @@ class AuthRepositoryImpl @Inject constructor(
                 saveUser(user)
                 
                 Timber.d("OTP verified successfully for $phoneNumber")
-                Result.success(Pair(authToken, user))
+                Result.Success(Pair(authToken, user))
             } else {
                 val errorMessage = response.errorBody()?.string() ?: "Failed to verify OTP"
                 Timber.e("Failed to verify OTP: $errorMessage")
-                Result.failure(Exception(errorMessage))
+                Result.Error(Exception(errorMessage))
             }
         } catch (e: Exception) {
             Timber.e(e, "Error verifying OTP")
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -73,7 +74,7 @@ class AuthRepositoryImpl @Inject constructor(
             result
         } catch (e: Exception) {
             Timber.e(e, "Error refreshing token after retries")
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     
@@ -99,11 +100,11 @@ class AuthRepositoryImpl @Inject constructor(
                 saveUser(user)
                 
                 Timber.d("Token refreshed successfully")
-                Result.success(Pair(authToken, user))
+                Result.Success(Pair(authToken, user))
             } else {
                 val errorMessage = response.errorBody()?.string() ?: "Failed to refresh token"
                 Timber.e("Failed to refresh token: $errorMessage")
-                Result.failure(Exception(errorMessage))
+                Result.Error(Exception(errorMessage))
             }
         } catch (e: Exception) {
             if (currentAttempt < maxAttempts) {
@@ -113,7 +114,7 @@ class AuthRepositoryImpl @Inject constructor(
                 refreshTokenWithRetry(refreshToken, maxAttempts, currentAttempt + 1)
             } else {
                 Timber.e(e, "Token refresh failed after $maxAttempts attempts")
-                Result.failure(e)
+                Result.Error(e)
             }
         }
     }
@@ -129,19 +130,19 @@ class AuthRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 clearAll()
                 Timber.d("Logout successful")
-                Result.success(Unit)
+                Result.Success(Unit)
             } else {
                 val errorMessage = response.errorBody()?.string() ?: "Failed to logout"
                 Timber.e("Failed to logout: $errorMessage")
                 // Clear local data even if API call fails
                 clearAll()
-                Result.failure(Exception(errorMessage))
+                Result.Error(Exception(errorMessage))
             }
         } catch (e: Exception) {
             Timber.e(e, "Error during logout")
             // Clear local data even if API call fails
             clearAll()
-            Result.failure(e)
+            Result.Error(e)
         }
     }
     

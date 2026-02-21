@@ -298,5 +298,31 @@
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
     <script src="js/rider-dashboard.js"></script>
+    
+    <!-- Load Google Maps API dynamically -->
+    <script>
+        // Global callback for Google Maps API initialization
+        window.initMap = function() {
+            console.log('Google Maps API loaded successfully');
+        };
+        
+        // Load Google Maps API with Places library
+        (function() {
+            const apiKey = APP_CONFIG.GOOGLE_MAPS_API_KEY || '';
+            if (apiKey) {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
+                script.async = true;
+                script.defer = true;
+                script.onerror = function() {
+                    console.error('Failed to load Google Maps API. Please check your API key.');
+                };
+                document.head.appendChild(script);
+            } else {
+                console.warn('Google Maps API key not configured. Autocomplete will not work.');
+                console.warn('Please add your API key to web/js/config.js');
+            }
+        })();
+    </script>
 </body>
 </html>

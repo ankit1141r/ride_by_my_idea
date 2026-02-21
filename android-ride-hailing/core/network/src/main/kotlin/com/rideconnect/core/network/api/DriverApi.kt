@@ -94,4 +94,13 @@ interface DriverApi {
     suspend fun updateLocation(
         @Body location: Map<String, Double>
     ): Response<Unit>
+    
+    /**
+     * Register device token for push notifications.
+     * Requirements: 19.1, 19.2
+     */
+    @POST("/api/drivers/device-token")
+    suspend fun registerDeviceToken(
+        @Body token: String
+    ): Response<Unit>
 }

@@ -79,7 +79,10 @@ class RideViewModel @Inject constructor(
                 if (message is com.rideconnect.core.domain.websocket.WebSocketMessage.DriverLocationUpdate) {
                     val currentRide = _activeRide.value
                     if (currentRide?.id == message.rideId) {
-                        _driverLocation.value = message.location
+                        _driverLocation.value = Location(
+                            latitude = message.latitude,
+                            longitude = message.longitude
+                        )
                     }
                 }
             }

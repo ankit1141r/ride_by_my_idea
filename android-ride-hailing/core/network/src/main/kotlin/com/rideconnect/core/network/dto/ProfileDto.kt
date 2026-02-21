@@ -54,15 +54,6 @@ data class EmergencyContactDto(
     val relationship: String?
 )
 
-data class EmergencyContactRequestDto(
-    @SerializedName("name")
-    val name: String,
-    @SerializedName("phone_number")
-    val phoneNumber: String,
-    @SerializedName("relationship")
-    val relationship: String? = null
-)
-
 data class ProfilePhotoUploadResponse(
     @SerializedName("photo_url")
     val photoUrl: String

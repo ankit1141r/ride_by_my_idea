@@ -8,17 +8,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rideconnect.core.common.navigation.Screen
 import com.rideconnect.core.domain.viewmodel.AuthState
 import com.rideconnect.core.domain.viewmodel.AuthViewModel
 import com.rideconnect.rider.ui.auth.LoginScreen
 import com.rideconnect.rider.ui.auth.OtpVerificationScreen
 import com.rideconnect.rider.ui.home.HomeScreen
-
-sealed class Screen(val route: String) {
-    object Login : Screen("login")
-    object OtpVerification : Screen("otp_verification")
-    object Home : Screen("home")
-}
 
 @Composable
 fun RiderNavGraph(
@@ -29,7 +24,7 @@ fun RiderNavGraph(
     
     // Determine start destination based on auth state
     val startDestination = when (authState) {
-        is AuthState.Authenticated -> Screen.Home.route
+        is AuthState.Authenticated -> Screen.RiderHome.route
         else -> Screen.Login.route
     }
     
@@ -46,12 +41,11 @@ fun RiderNavGraph(
                     }
                 },
                 onLoginSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.RiderHome.route) {
                         // Clear back stack when login is successful
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
-                },
-                viewModel = authViewModel
+                }
             )
         }
         
@@ -61,23 +55,30 @@ fun RiderNavGraph(
                     navController.popBackStack()
                 },
                 onVerificationSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    navController.navigate(Screen.RiderHome.route) {
                         // Clear back stack when verification is successful
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
-                },
-                viewModel = authViewModel
+                }
             )
         }
         
-        composable(Screen.Home.route) {
+        composable(Screen.RiderHome.route) {
             HomeScreen(
-                onLogout = {
-                    authViewModel.logout()
-                    navController.navigate(Screen.Login.route) {
-                        // Clear back stack when logging out
-                        popUpTo(Screen.Home.route) { inclusive = true }
-                    }
+                onNavigateToRideRequest = {
+                    navController.navigate(Screen.RideRequest.route)
+                },
+                onNavigateToScheduleRide = {
+                    navController.navigate(Screen.ScheduleRide.route)
+                },
+                onNavigateToParcelDelivery = {
+                    navController.navigate(Screen.ParcelDelivery.route)
+                },
+                onNavigateToRideTracking = { rideId ->
+                    navController.navigate(Screen.RideTracking.createRoute(rideId))
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
                 }
             )
         }

@@ -2,7 +2,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
     id("com.google.dagger.hilt.android")
-    kotlin("kapt")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -27,7 +27,7 @@ android {
 dependencies {
     // Core modules
     implementation(project(":core:domain"))
-    implementation(project(":core:data"))
+    implementation(project(":core:common"))
     
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.20")
@@ -49,12 +49,8 @@ dependencies {
     
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-compiler:2.48.1")
+    ksp("com.google.dagger:hilt-compiler:2.48.1")
     
     // Timber
     implementation("com.jakewharton.timber:timber:5.0.1")
-}
-
-kapt {
-    correctErrorTypes = true
 }

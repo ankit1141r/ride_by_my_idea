@@ -1,66 +1,65 @@
 package com.rideconnect.core.data.mapper
 
-import com.rideconnect.core.domain.model.AverageRating
-import com.rideconnect.core.domain.model.Rating
-import com.rideconnect.core.domain.model.RatingBreakdown
-import com.rideconnect.core.domain.model.RatingRequest
-import com.rideconnect.core.network.dto.AverageRatingDto
-import com.rideconnect.core.network.dto.RatingBreakdownDto
-import com.rideconnect.core.network.dto.RatingDto
-import com.rideconnect.core.network.dto.RatingRequestDto
+import com.rideconnect.core.domain.model.*
+import com.rideconnect.core.network.dto.*
+import com.rideconnect.core.database.entity.RatingEntity
+import java.time.Instant
+import java.time.format.DateTimeFormatter
 
-/**
- * Mapper functions for Rating domain models and DTOs.
- * Requirements: 8.1, 8.2, 8.3, 8.5, 8.6
- */
-
-/**
- * Convert RatingDto to Rating domain model.
- */
-fun RatingDto.toRating(): Rating {
-    return Rating(
-        id = id,
-        rideId = rideId,
-        raterId = raterId,
-        ratedUserId = ratedUserId,
-        rating = rating,
-        review = review,
-        createdAt = createdAt
-    )
-}
-
-/**
- * Convert RatingRequest to RatingRequestDto.
- */
-fun RatingRequest.toDto(): RatingRequestDto {
-    return RatingRequestDto(
-        rideId = rideId,
-        rating = rating,
-        review = review
-    )
-}
-
-/**
- * Convert AverageRatingDto to AverageRating domain model.
- */
-fun AverageRatingDto.toAverageRating(): AverageRating {
-    return AverageRating(
-        userId = userId,
-        averageRating = averageRating,
-        totalRatings = totalRatings,
-        ratingBreakdown = ratingBreakdown.toRatingBreakdown()
-    )
-}
-
-/**
- * Convert RatingBreakdownDto to RatingBreakdown domain model.
- */
-fun RatingBreakdownDto.toRatingBreakdown(): RatingBreakdown {
-    return RatingBreakdown(
-        fiveStars = fiveStars,
-        fourStars = fourStars,
-        threeStars = threeStars,
-        twoStars = twoStars,
-        oneStar = oneStar
-    )
+object RatingMapper {
+    
+    fun toDto(request: RatingRequest): RatingRequestDto {
+        return RatingRequestDto(
+            rideId = request.rideId,
+            rating = request.rating,
+            review = request.review
+        )
+    }
+    
+    fun toRating(dto: RatingResponseDto): Rating {
+        return Rating(
+            id = dto.id,
+            rideId = dto.rideId,
+            raterId = dto.raterId,
+            ratedUserId = dto.ratedUserId,
+            rating = dto.rating,
+            review = dto.review,
+            createdAt = parseTimestamp(dto.createdAt)
+        )
+    }
+    
+    fun toEntity(rating: Rating): RatingEntity {
+        return RatingEntity(
+            id = rating.id,
+            rideId = rating.rideId,
+            raterId = rating.raterId,
+            ratedUserId = rating.ratedUserId,
+            rating = rating.rating,
+            review = rating.review,
+            createdAt = rating.createdAt
+        )
+    }
+    
+    fun toAverageRating(dto: AverageRatingResponseDto): AverageRating {
+        return AverageRating(
+            userId = dto.userId,
+            averageRating = dto.averageRating,
+            totalRatings = dto.totalRatings,
+            ratingBreakdown = RatingBreakdown(
+                fiveStars = dto.ratingBreakdown.fiveStars,
+                fourStars = dto.ratingBreakdown.fourStars,
+                threeStars = dto.ratingBreakdown.threeStars,
+                twoStars = dto.ratingBreakdown.twoStars,
+                oneStar = dto.ratingBreakdown.oneStar
+            )
+        )
+    }
+    
+    private fun parseTimestamp(timestamp: String): Long {
+        return try {
+            Instant.from(DateTimeFormatter.ISO_INSTANT.parse(timestamp)).toEpochMilli()
+        } catch (e: Exception) {
+            System.currentTimeMillis()
+        }
+    }
 }

@@ -45,7 +45,9 @@ class WebSocketManagerImpl @Inject constructor(
     
     private var authToken: String? = null
     private var userType: String? = null
-    private var wsUrl: String = "ws://localhost:8000/ws" // Default, should be configured
+    // Use WSS (secure WebSocket) protocol for production
+    // Requirements: 24.4
+    private var wsUrl: String = "wss://api.rideconnect.com/ws" // Secure WebSocket URL
     
     companion object {
         private const val PING_INTERVAL_MS = 30_000L // 30 seconds

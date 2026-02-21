@@ -6,6 +6,10 @@ class RiderDashboard {
         this.rideHistory = [];
         this.emergencyContacts = [];
         this.currentLocation = null;
+        this.pickupAutocomplete = null;
+        this.destinationAutocomplete = null;
+        this.pickupPlace = null;
+        this.destinationPlace = null;
         
         this.init();
     }
@@ -30,6 +34,66 @@ class RiderDashboard {
         
         // Get current location
         this.getCurrentLocation();
+        
+        // Initialize Google Maps Autocomplete (will be called when Maps API loads)
+        this.initializeAutocomplete();
+    }
+
+    initializeAutocomplete() {
+        // Wait for Google Maps API to load
+        if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+            setTimeout(() => this.initializeAutocomplete(), 100);
+            return;
+        }
+
+        const pickupInput = document.getElementById('pickupLocation');
+        const destinationInput = document.getElementById('destinationLocation');
+
+        if (!pickupInput || !destinationInput) {
+            return;
+        }
+
+        // Configure autocomplete options - restrict to Indore region
+        const autocompleteOptions = {
+            componentRestrictions: { country: 'in' },
+            fields: ['formatted_address', 'geometry', 'name', 'place_id'],
+            types: ['establishment', 'geocode']
+        };
+
+        // Initialize autocomplete for pickup location
+        this.pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, autocompleteOptions);
+        
+        // Initialize autocomplete for destination
+        this.destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput, autocompleteOptions);
+
+        // Add place changed listeners
+        this.pickupAutocomplete.addListener('place_changed', () => {
+            const place = this.pickupAutocomplete.getPlace();
+            if (place.geometry) {
+                this.pickupPlace = {
+                    address: place.formatted_address || place.name,
+                    latitude: place.geometry.location.lat(),
+                    longitude: place.geometry.location.lng(),
+                    place_id: place.place_id
+                };
+                this.calculateFareEstimate();
+            }
+        });
+
+        this.destinationAutocomplete.addListener('place_changed', () => {
+            const place = this.destinationAutocomplete.getPlace();
+            if (place.geometry) {
+                this.destinationPlace = {
+                    address: place.formatted_address || place.name,
+                    latitude: place.geometry.location.lat(),
+                    longitude: place.geometry.location.lng(),
+                    place_id: place.place_id
+                };
+                this.calculateFareEstimate();
+            }
+        });
+
+        console.log('Google Maps Autocomplete initialized');
     }
 
     setupNavigation() {
@@ -143,8 +207,67 @@ class RiderDashboard {
             
             const input = document.getElementById(type === 'pickup' ? 'pickupLocation' : 'destinationLocation');
             if (input) {
-                input.value = 'Current Location';
-                this.calculateFareEstimate();
+                // Use reverse geocoding to get address from coordinates
+                if (typeof google !== 'undefined' && google.maps) {
+                    const geocoder = new google.maps.Geocoder();
+                    const latlng = { lat: location.latitude, lng: location.longitude };
+                    
+                    geocoder.geocode({ location: latlng }, (results, status) => {
+                        if (status === 'OK' && results[0]) {
+                            input.value = results[0].formatted_address;
+                            
+                            // Set the place data
+                            const placeData = {
+                                address: results[0].formatted_address,
+                                latitude: location.latitude,
+                                longitude: location.longitude,
+                                place_id: results[0].place_id
+                            };
+                            
+                            if (type === 'pickup') {
+                                this.pickupPlace = placeData;
+                            } else {
+                                this.destinationPlace = placeData;
+                            }
+                            
+                            this.calculateFareEstimate();
+                        } else {
+                            input.value = 'Current Location';
+                            
+                            // Set basic location data
+                            const placeData = {
+                                address: 'Current Location',
+                                latitude: location.latitude,
+                                longitude: location.longitude
+                            };
+                            
+                            if (type === 'pickup') {
+                                this.pickupPlace = placeData;
+                            } else {
+                                this.destinationPlace = placeData;
+                            }
+                            
+                            this.calculateFareEstimate();
+                        }
+                    });
+                } else {
+                    input.value = 'Current Location';
+                    
+                    // Set basic location data
+                    const placeData = {
+                        address: 'Current Location',
+                        latitude: location.latitude,
+                        longitude: location.longitude
+                    };
+                    
+                    if (type === 'pickup') {
+                        this.pickupPlace = placeData;
+                    } else {
+                        this.destinationPlace = placeData;
+                    }
+                    
+                    this.calculateFareEstimate();
+                }
             }
             
             showToast('Current location set', 'success');
@@ -163,15 +286,53 @@ class RiderDashboard {
             return;
         }
 
-        // Mock fare calculation (in real app, this would call the API)
-        const distance = 5.2; // Mock distance
-        const baseFare = APP_CONFIG.FARE_CONFIG.BASE_FARE;
-        const perKmRate = APP_CONFIG.FARE_CONFIG.PER_KM_RATE;
-        const estimatedFare = baseFare + (distance * perKmRate);
+        // If we have actual place coordinates, calculate real distance
+        if (this.pickupPlace && this.destinationPlace) {
+            try {
+                const distance = this.calculateDistance(
+                    this.pickupPlace.latitude,
+                    this.pickupPlace.longitude,
+                    this.destinationPlace.latitude,
+                    this.destinationPlace.longitude
+                );
 
-        document.getElementById('fareAmount').textContent = formatCurrency(estimatedFare);
-        document.getElementById('distanceInfo').textContent = formatDistance(distance);
-        fareEstimate.style.display = 'block';
+                const baseFare = APP_CONFIG.FARE_CONFIG.BASE_FARE;
+                const perKmRate = APP_CONFIG.FARE_CONFIG.PER_KM_RATE;
+                const estimatedFare = baseFare + (distance * perKmRate);
+
+                document.getElementById('fareAmount').textContent = formatCurrency(estimatedFare);
+                document.getElementById('distanceInfo').textContent = formatDistance(distance);
+                fareEstimate.style.display = 'block';
+            } catch (error) {
+                console.error('Error calculating fare:', error);
+            }
+        } else {
+            // Show placeholder estimate if places not selected yet
+            const baseFare = APP_CONFIG.FARE_CONFIG.BASE_FARE;
+            document.getElementById('fareAmount').textContent = formatCurrency(baseFare) + '+';
+            document.getElementById('distanceInfo').textContent = 'Select locations for estimate';
+            fareEstimate.style.display = 'block';
+        }
+    }
+
+    // Calculate distance between two coordinates using Haversine formula
+    calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Earth's radius in kilometers
+        const dLat = this.toRadians(lat2 - lat1);
+        const dLon = this.toRadians(lon2 - lon1);
+        
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = R * c;
+        
+        return distance;
+    }
+
+    toRadians(degrees) {
+        return degrees * (Math.PI / 180);
     }
 
     async searchDrivers() {
@@ -183,20 +344,26 @@ class RiderDashboard {
             return;
         }
 
+        // Check if places are selected from autocomplete
+        if (!this.pickupPlace || !this.destinationPlace) {
+            showToast('Please select locations from the suggestions', 'warning');
+            return;
+        }
+
         try {
             showLoading();
             
-            // Prepare ride request data
+            // Prepare ride request data with actual coordinates
             const rideData = {
                 pickup_location: {
-                    latitude: this.currentLocation?.latitude || APP_CONFIG.DEFAULT_LOCATION.latitude,
-                    longitude: this.currentLocation?.longitude || APP_CONFIG.DEFAULT_LOCATION.longitude,
-                    address: pickupInput.value
+                    latitude: this.pickupPlace.latitude,
+                    longitude: this.pickupPlace.longitude,
+                    address: this.pickupPlace.address
                 },
                 destination: {
-                    latitude: APP_CONFIG.DEFAULT_LOCATION.latitude + 0.01,
-                    longitude: APP_CONFIG.DEFAULT_LOCATION.longitude + 0.01,
-                    address: destinationInput.value
+                    latitude: this.destinationPlace.latitude,
+                    longitude: this.destinationPlace.longitude,
+                    address: this.destinationPlace.address
                 }
             };
 
@@ -776,6 +943,12 @@ class RiderDashboard {
 
 // Global functions for HTML onclick handlers
 window.riderDashboard = null;
+
+// Global callback for Google Maps API initialization
+window.initMap = function() {
+    console.log('Google Maps API loaded successfully');
+    // The autocomplete will be initialized when RiderDashboard is created
+};
 
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
