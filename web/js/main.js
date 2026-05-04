@@ -37,16 +37,21 @@ function initializeApp() {
 
 // Check API health
 async function checkAPIHealth() {
+    // Don't show toast on dashboard/admin pages — they have their own status UI
+    const isDashboardPage = window.location.pathname.includes('dashboard') || 
+                            window.location.pathname.includes('admin');
     try {
         const health = await apiService.getHealth();
         console.log('API Health:', health);
         
-        if (health.status !== 'healthy') {
+        if (health.status !== 'healthy' && !isDashboardPage) {
             showToast('Backend service is not fully operational', 'warning');
         }
     } catch (error) {
         console.error('API Health Check Failed:', error);
-        showToast('Unable to connect to backend service', 'error');
+        if (!isDashboardPage) {
+            showToast('Unable to connect to backend service', 'error');
+        }
     }
 }
 

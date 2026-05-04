@@ -6,6 +6,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 import math
 import googlemaps
+from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCollection
 from pymongo import GEOSPHERE, ASCENDING, DESCENDING
 from pymongo.errors import CollectionInvalid
@@ -18,6 +19,7 @@ from app.models.location import (
     LOCATION_INDEXES,
     LOCATION_HISTORY_INDEXES
 )
+from app.database import get_mongodb
 from app.config import settings
 
 
@@ -763,12 +765,12 @@ class LocationService:
 
 
 # Helper function to get location service instance
-def get_location_service(db: AsyncIOMotorDatabase) -> LocationService:
+def get_location_service(db: AsyncIOMotorDatabase = Depends(get_mongodb)) -> LocationService:
     """
     Get LocationService instance.
     
     Args:
-        db: MongoDB database instance
+        db: MongoDB database instance (injected via FastAPI Depends)
         
     Returns:
         LocationService instance

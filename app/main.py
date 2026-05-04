@@ -1,16 +1,20 @@
 """
 Main FastAPI application entry point.
 """
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import SQLAlchemyError
 from redis.exceptions import RedisError
 import logging
+import os
 from app.config import settings
 from app.routers import auth, location, rides, drivers, websocket, payments, ratings, emergency, scheduled_rides, parcels
 from app.middleware.logging_middleware import RequestLoggingMiddleware
+from app.services.scheduler_service import SchedulerService
 
 # Configure logging
 logging.basicConfig(
@@ -19,10 +23,37 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Start scheduler on startup, shut it down on exit."""
+    # Ensure all database tables exist (works for both PostgreSQL and SQLite)
+    from app.database import create_all_tables
+    try:
+        create_all_tables()
+    except Exception as e:
+        logger.error(f"Failed to create tables: {e}", exc_info=True)
+
+    scheduler_service = SchedulerService()
+    try:
+        await scheduler_service.start()
+        logger.info("Background scheduler started")
+    except Exception as e:
+        logger.error(f"Scheduler failed to start: {e}", exc_info=True)
+    app.state.scheduler_service = scheduler_service
+    yield
+    try:
+        await scheduler_service.shutdown()
+        logger.info("Background scheduler stopped")
+    except Exception as e:
+        logger.error(f"Scheduler shutdown error: {e}", exc_info=True)
+
+
 app = FastAPI(
     title=settings.app_name,
     debug=settings.debug,
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Add request logging middleware
@@ -120,15 +151,16 @@ app.include_router(parcels.router)
 from app.routers.admin import router as admin_router
 app.include_router(admin_router)
 
+# Serve static web files
+web_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web")
+if os.path.exists(web_dir):
+    app.mount("/web", StaticFiles(directory=web_dir, html=True), name="web")
+
 
 @app.get("/")
 async def root():
-    """Health check endpoint."""
-    return {
-        "status": "ok",
-        "app": settings.app_name,
-        "environment": settings.app_env
-    }
+    """Redirect to web app."""
+    return FileResponse(os.path.join(web_dir, "index.html"))
 
 
 @app.get("/health")

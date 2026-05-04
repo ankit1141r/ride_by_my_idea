@@ -18,8 +18,43 @@ class AdminPanel {
         // In production, you'd check for admin role
         
         this.setupEventListeners();
+        await this.checkBackendStatus();
         await this.loadDashboardData();
         this.startAutoRefresh();
+    }
+
+    async checkBackendStatus() {
+        const badge = document.getElementById('backendStatusBadge');
+        const text = document.getElementById('backendStatusText');
+        if (!badge || !text) return;
+
+        try {
+            const health = await fetch('http://localhost:8001/health', { 
+                method: 'GET',
+                signal: AbortSignal.timeout(3000)
+            });
+            const data = await health.json();
+
+            if (data.status === 'healthy') {
+                badge.style.background = 'rgba(16,185,129,0.15)';
+                badge.style.color = '#10b981';
+                badge.style.borderColor = 'rgba(16,185,129,0.3)';
+                badge.querySelector('span').style.background = '#10b981';
+                text.textContent = 'Backend Connected';
+            } else {
+                badge.style.background = 'rgba(245,158,11,0.15)';
+                badge.style.color = '#f59e0b';
+                badge.style.borderColor = 'rgba(245,158,11,0.3)';
+                badge.querySelector('span').style.background = '#f59e0b';
+                text.textContent = 'Backend Degraded';
+            }
+        } catch (err) {
+            badge.style.background = 'rgba(239,68,68,0.15)';
+            badge.style.color = '#ef4444';
+            badge.style.borderColor = 'rgba(239,68,68,0.3)';
+            badge.querySelector('span').style.background = '#ef4444';
+            text.textContent = 'Backend Offline';
+        }
     }
 
     setupEventListeners() {

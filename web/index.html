@@ -19,6 +19,7 @@
             </div>
             <div class="nav-menu">
                 <a href="#home" class="nav-link">Home</a>
+                <a href="#panels" class="nav-link">Panels</a>
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#about" class="nav-link">About</a>
                 <button class="btn btn-outline" onclick="showLoginModal()">Login</button>
@@ -67,6 +68,62 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Panel Access Section -->
+    <section id="panels" style="background:#f8fafc;padding:60px 0;border-top:1px solid rgba(212,160,23,.12);">
+        <div class="container">
+            <h2 style="text-align:center;margin-bottom:10px;font-size:2rem;font-weight:800;color:#0f172a;">Access Panels</h2>
+            <p style="text-align:center;color:#64748b;margin-bottom:40px;font-size:1rem;">Jump directly to any panel</p>
+            <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+
+                <!-- Rider Panel -->
+                <a href="rider-dashboard.html" style="text-decoration:none;flex:1;min-width:220px;max-width:280px;">
+                    <div class="panel-card" style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:20px;padding:36px 28px;text-align:center;color:#fff;box-shadow:0 8px 32px rgba(15,23,42,.35);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1),box-shadow .3s ease;cursor:pointer;border:1px solid rgba(212,160,23,.2);"
+                         onmouseover="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 48px rgba(15,23,42,.45)';this.style.borderColor='rgba(212,160,23,.5)'"
+                         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 32px rgba(15,23,42,.35)';this.style.borderColor='rgba(212,160,23,.2)'">
+                        <div style="font-size:3rem;margin-bottom:16px;">🚗</div>
+                        <h3 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;color:#f0c040;">Rider Panel</h3>
+                        <p style="opacity:.75;font-size:.95rem;margin-bottom:20px;color:#cbd5e1;">Book rides, track trips, view history</p>
+                        <span style="background:rgba(212,160,23,.2);border:1px solid rgba(212,160,23,.4);padding:8px 20px;border-radius:50px;font-weight:600;font-size:.9rem;color:#f0c040;">Open Rider Panel →</span>
+                    </div>
+                </a>
+
+                <!-- Driver Panel -->
+                <a href="driver-dashboard.html" style="text-decoration:none;flex:1;min-width:220px;max-width:280px;">
+                    <div class="panel-card" style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:20px;padding:36px 28px;text-align:center;color:#fff;box-shadow:0 8px 32px rgba(15,23,42,.35);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1),box-shadow .3s ease;cursor:pointer;border:1px solid rgba(16,185,129,.2);"
+                         onmouseover="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 48px rgba(15,23,42,.45)';this.style.borderColor='rgba(16,185,129,.5)'"
+                         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 32px rgba(15,23,42,.35)';this.style.borderColor='rgba(16,185,129,.2)'">
+                        <div style="font-size:3rem;margin-bottom:16px;">🚕</div>
+                        <h3 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;color:#6ee7b7;">Driver Panel</h3>
+                        <p style="opacity:.75;font-size:.95rem;margin-bottom:20px;color:#cbd5e1;">Go online, accept rides, track earnings</p>
+                        <span style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);padding:8px 20px;border-radius:50px;font-weight:600;font-size:.9rem;color:#6ee7b7;">Open Driver Panel →</span>
+                    </div>
+                </a>
+
+                <!-- Admin Panel -->
+                <a href="admin.html" style="text-decoration:none;flex:1;min-width:220px;max-width:280px;">
+                    <div class="panel-card" style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:20px;padding:36px 28px;text-align:center;color:#fff;box-shadow:0 8px 32px rgba(15,23,42,.35);transition:transform .3s cubic-bezier(0.34,1.56,0.64,1),box-shadow .3s ease;cursor:pointer;border:1px solid rgba(59,130,246,.2);"
+                         onmouseover="this.style.transform='translateY(-8px)';this.style.boxShadow='0 20px 48px rgba(15,23,42,.45)';this.style.borderColor='rgba(59,130,246,.5)'"
+                         onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 32px rgba(15,23,42,.35)';this.style.borderColor='rgba(59,130,246,.2)'">
+                        <div style="font-size:3rem;margin-bottom:16px;">🛡️</div>
+                        <h3 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;color:#93c5fd;">Admin Panel</h3>
+                        <p style="opacity:.75;font-size:.95rem;margin-bottom:20px;color:#cbd5e1;">Manage users, rides, payments & system</p>
+                        <span style="background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.4);padding:8px 20px;border-radius:50px;font-weight:600;font-size:.9rem;color:#93c5fd;">Open Admin Panel →</span>
+                    </div>
+                </a>
+
+            </div>
+
+            <!-- Quick credentials hint -->
+            <div style="text-align:center;margin-top:32px;padding:16px 24px;background:#fff;border-radius:12px;display:block;box-shadow:0 2px 16px rgba(15,23,42,.08);max-width:480px;margin-left:auto;margin-right:auto;border:1px solid rgba(212,160,23,.15);">
+                <p style="margin:0;color:#334155;font-size:.9rem;">
+                    <strong style="color:#0f172a;">Demo Login:</strong> &nbsp;
+                    Phone: <code style="background:#f1f5f9;padding:2px 8px;border-radius:4px;color:#0f172a;font-weight:600;">+919999999999</code> &nbsp;
+                    Password: <code style="background:#f1f5f9;padding:2px 8px;border-radius:4px;color:#0f172a;font-weight:600;">Admin@1234</code>
+                </p>
             </div>
         </div>
     </section>
@@ -285,6 +342,7 @@
                         <li><a href="#home">Home</a></li>
                         <li><a href="#features">Features</a></li>
                         <li><a href="#about">About</a></li>
+                        <li><a href="hub.html">Panel Hub</a></li>
                         <li><a href="admin.html">Admin Panel</a></li>
                     </ul>
                 </div>
@@ -313,9 +371,11 @@
         </div>
     </footer>
 
-    <script src="js/config.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/config.js?v=2"></script>
+    <script src="js/api.js?v=2"></script>
+    <script src="js/auth.js?v=2"></script>
+    <script src="js/navigation.js?v=2"></script>
+    <script src="js/animations.js?v=2"></script>
+    <script src="js/main.js?v=2"></script>
 </body>
 </html>

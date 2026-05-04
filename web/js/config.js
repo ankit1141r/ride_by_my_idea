@@ -1,6 +1,8 @@
 // API Configuration
+// Backend runs on port 8001; frontend is served from port 3000.
+// Always point API calls at the backend port.
 const API_CONFIG = {
-    BASE_URL: window.location.origin || 'http://192.168.1.3:8001',
+    BASE_URL: 'http://localhost:8001',
     ENDPOINTS: {
         // Authentication
         REGISTER: '/api/auth/register',
@@ -42,7 +44,7 @@ const API_CONFIG = {
 
 // WebSocket Configuration
 const WS_CONFIG = {
-    URL: `ws://${window.location.host || '192.168.1.3:8001'}/ws`,
+    URL: 'ws://localhost:8001/ws',
     RECONNECT_INTERVAL: 5000,
     MAX_RECONNECT_ATTEMPTS: 5
 };

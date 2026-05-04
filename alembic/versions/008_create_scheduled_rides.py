@@ -61,17 +61,9 @@ def upgrade():
         sa.Column('transaction_id', sa.String(100), nullable=True),
     )
     
-    # Create indexes
-    op.create_index('ix_scheduled_rides_rider_id', 'scheduled_rides', ['rider_id'])
-    op.create_index('ix_scheduled_rides_driver_id', 'scheduled_rides', ['driver_id'])
-    op.create_index('ix_scheduled_rides_scheduled_pickup_time', 'scheduled_rides', ['scheduled_pickup_time'])
-    op.create_index('ix_scheduled_rides_status', 'scheduled_rides', ['status'])
+    # Indexes are already created inline via index=True on the columns above
 
 
 def downgrade():
     """Drop scheduled_rides table."""
-    op.drop_index('ix_scheduled_rides_status', 'scheduled_rides')
-    op.drop_index('ix_scheduled_rides_scheduled_pickup_time', 'scheduled_rides')
-    op.drop_index('ix_scheduled_rides_driver_id', 'scheduled_rides')
-    op.drop_index('ix_scheduled_rides_rider_id', 'scheduled_rides')
     op.drop_table('scheduled_rides')
