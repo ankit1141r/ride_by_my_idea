@@ -1,0 +1,7 @@
+.git
+__pycache__
+*.pyc
+.pytest_cache
+test_runner.py
+test_all_features.py
+*.db

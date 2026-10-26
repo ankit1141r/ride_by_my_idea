@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pan-India Admin & Dispatcher Control Center — RideConnect India</title>
+  
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .admin-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      position: relative;
+    }
+    .admin-stat-val {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 6px;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .admin-table th, .admin-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .admin-table th {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow-x: auto;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand">
+        <i class="fas fa-location-arrow"></i>
+        <span>RideConnect</span>
+        <span class="brand-badge" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">Admin & Dispatch</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <span class="badge badge-green"><span class="pulse-dot"></span> All Systems Operational</span>
+        <span style="font-size: 0.9rem; font-weight: 600;">Rajesh Sharma (Admin)</span>
+        <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-home"></i></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Admin Body Container -->
+  <main class="container" style="padding: 30px 20px;">
+    
+    <!-- Top Filter Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h2 style="font-size: 1.8rem;">Pan-India Operations Overview</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Real-time telemetry and dispatch status across 50+ Indian cities.</p>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <label style="font-size: 0.88rem; color: var(--text-muted);">Region Filter:</label>
+        <select id="adminCityFilter" class="form-control" style="width: auto; padding: 8px 36px 8px 14px;" onchange="onAdminCityFilterChange(this.value)">
+          <option value="all">🇮🇳 All India (National Overview)</option>
+          <option value="delhi">Delhi NCR</option>
+          <option value="mumbai">Mumbai</option>
+          <option value="bengaluru">Bengaluru</option>
+          <option value="hyderabad">Hyderabad</option>
+          <option value="indore">Indore</option>
+          <option value="chennai">Chennai</option>
+          <option value="kolkata">Kolkata</option>
+          <option value="pune">Pune</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Gross Platform Volume</div>
+        <div class="admin-stat-val" style="color: var(--secondary);">₹1,84,520</div>
+        <div style="font-size: 0.75rem; color: #34d399; margin-top: 4px;">+18.4% today • 5% GST included</div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Active Drivers Online</div>
+        <div class="admin-stat-val" style="color: #60a5fa;" id="statOnlineDrivers">10</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Across all Indian metros</div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Total Rides Completed</div>
+        <div class="admin-stat-val">14,290</div>
+        <div style="font-size: 0.75rem; color: #34d399; margin-top: 4px;">98.2% on-time completion</div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">P2P Parcel Deliveries</div>
+        <div class="admin-stat-val" style="color: #ff8c33;">3,420</div>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Small, Medium & Large</div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Emergency SOS Alerts</div>
+        <div class="admin-stat-val" style="color: var(--danger);">0 Active</div>
+        <div style="font-size: 0.75rem; color: #34d399; margin-top: 4px;">ERSS 112 Ready</div>
+      </div>
+    </div>
+
+    <!-- Live Fleet Map -->
+    <div class="table-container" style="padding: 20px; margin-bottom: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 1.15rem;"><i class="fas fa-satellite" style="color: var(--primary); margin-right: 8px;"></i> Live Pan-India Fleet Radar</h3>
+        <span class="badge badge-blue"><i class="fas fa-location-crosshairs"></i> GPS Telemetry Active</span>
+      </div>
+      <div id="admin-map" style="width: 100%; height: 380px; border-radius: var(--radius-md);"></div>
+    </div>
+
+    <!-- Driver KYC Approval Queue -->
+    <div class="table-container">
+      <div style="padding: 18px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 1.15rem;"><i class="fas fa-id-card" style="color: #3b82f6; margin-right: 8px;"></i> Driver KYC Verification Queue</h3>
+        <span class="badge badge-green">100% Background Checked</span>
+      </div>
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Captain Name</th>
+            <th>City / State</th>
+            <th>Vehicle & Plate</th>
+            <th>Commercial DL</th>
+            <th>Aadhaar KYC</th>
+            <th>Rating</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="driverKycTbody">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Dynamic Surge & Commission Controls -->
+    <div class="glass-card">
+      <h3 style="font-size: 1.15rem; margin-bottom: 14px;"><i class="fas fa-sliders" style="color: var(--primary); margin-right: 8px;"></i> Dynamic Surge & Platform Configuration</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div class="form-group">
+          <label class="form-label">Platform Commission</label>
+          <input type="text" class="form-control" value="10% (Driver gets 90%)" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Transport GST Rate</label>
+          <input type="text" class="form-control" value="5% (2.5% CGST + 2.5% SGST)" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Scheduled Cancel Fee (<1hr)</label>
+          <input type="text" class="form-control" value="₹30.00" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Surge Multiplier</label>
+          <select class="form-control" onchange="api.toast('Surge updated to ' + this.value, 'success')">
+            <option value="1.0x">1.0x (Standard Fare)</option>
+            <option value="1.2x">1.2x (Peak Traffic)</option>
+            <option value="1.5x">1.5x (Rain / High Demand)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- App Scripts -->
+  <script src="js/india-cities.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/map-manager.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rider Dashboard — RideConnect India</title>
+  
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .app-layout {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      height: calc(100vh - 68px);
+      overflow: hidden;
+    }
+    .sidebar {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    .tabs-nav {
+      display: flex;
+      background: rgba(10, 15, 26, 0.85);
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 90px;
+      padding: 14px 10px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: var(--transition);
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .tab-btn i { font-size: 1.15rem; }
+    .tab-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.03); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: rgba(255, 107, 0, 0.06);
+    }
+    .tab-content {
+      padding: 24px;
+      flex: 1;
+      display: none;
+    }
+    .tab-content.active { display: block; }
+    
+    #map-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    
+    .map-city-picker {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 500;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow-lg);
+    }
+    .active-trip-card {
+      background: linear-gradient(135deg, rgba(255, 107, 0, 0.12), rgba(16, 185, 129, 0.08));
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-top: 20px;
+      animation: modalIn 0.3s ease;
+    }
+    .pin-display {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px dashed var(--primary);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      text-align: center;
+      margin: 14px 0;
+    }
+    .pin-code {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: 0.25em;
+      color: #ff8c33;
+    }
+    .parcel-size-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .parcel-size-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .parcel-size-card.active {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: var(--secondary);
+    }
+    @media (max-width: 900px) {
+      .app-layout { grid-template-columns: 1fr; height: auto; }
+      .sidebar { height: auto; max-height: 60vh; }
+      #map-container { height: 40vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand">
+        <i class="fas fa-location-arrow"></i>
+        <span>RideConnect</span>
+        <span class="brand-badge">Rider</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-city" style="color: var(--primary);"></i>
+          <select id="riderCityNavSelect" class="form-control" style="padding: 6px 30px 6px 12px; font-size: 0.85rem;" onchange="onRiderCityChanged(this.value)">
+            <option value="delhi">Delhi NCR</option>
+            <option value="mumbai">Mumbai</option>
+            <option value="bengaluru">Bengaluru</option>
+            <option value="hyderabad">Hyderabad</option>
+            <option value="indore">Indore</option>
+            <option value="chennai">Chennai</option>
+            <option value="kolkata">Kolkata</option>
+            <option value="pune">Pune</option>
+            <option value="ahmedabad">Ahmedabad</option>
+            <option value="jaipur">Jaipur</option>
+            <option value="lucknow">Lucknow</option>
+            <option value="chandigarh">Chandigarh</option>
+            <option value="bhopal">Bhopal</option>
+            <option value="kochi">Kochi</option>
+            <option value="goa">Goa</option>
+          </select>
+        </div>
+
+        <div id="userBadge" style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 34px; height: 34px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">
+            AP
+          </div>
+          <span style="font-size: 0.9rem; font-weight: 600;" id="userNameDisplay">Aarav Patel</span>
+        </div>
+
+        <a href="index.html" class="btn btn-secondary btn-sm" title="Exit to Home">
+          <i class="fas fa-home"></i>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main App Layout -->
+  <div class="app-layout">
+    <!-- Left Sidebar with Tabs -->
+    <div class="sidebar">
+      <!-- Tabs Header -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchRiderTab('instant')">
+          <i class="fas fa-bolt"></i> Instant
+        </button>
+        <button class="tab-btn" onclick="switchRiderTab('scheduled')">
+          <i class="fas fa-calendar-check"></i> Schedule
+        </button>
+        <button class="tab-btn" onclick="switchRiderTab('parcel')">
+          <i class="fas fa-box-open"></i> Courier
+        </button>
+        <button class="tab-btn" onclick="switchRiderTab('outstation')">
+          <i class="fas fa-route"></i> Outstation
+        </button>
+        <button class="tab-btn" onclick="switchRiderTab('history')">
+          <i class="fas fa-clock-rotate-left"></i> History
+        </button>
+      </div>
+
+      <!-- TAB 1: Instant Ride -->
+      <div id="tab-instant" class="tab-content active">
+        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Book an Instant Ride</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;">
+          Select points or click on the map to set pickup & destination.
+        </p>
+
+        <!-- Location Inputs -->
+        <div class="form-group">
+          <label class="form-label">Pickup Location</label>
+          <div class="input-wrapper">
+            <i class="fas fa-circle-dot input-icon" style="color: var(--secondary);"></i>
+            <input type="text" id="pickupInput" class="form-control" placeholder="Enter pickup address or landmark" value="Connaught Place (CP), Central Delhi">
+            <button type="button" class="btn btn-secondary btn-sm" style="position: absolute; right: 6px; padding: 6px 10px;" onclick="useCurrentGpsLocation()" title="Use Current GPS">
+              <i class="fas fa-crosshairs"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Destination</label>
+          <div class="input-wrapper">
+            <i class="fas fa-location-dot input-icon" style="color: var(--danger);"></i>
+            <input type="text" id="dropoffInput" class="form-control" placeholder="Enter destination address or landmark" value="Indira Gandhi International Airport (IGI)">
+          </div>
+        </div>
+
+        <!-- Vehicle Type Selector -->
+        <label class="form-label" style="margin-top: 14px;">Select Vehicle</label>
+        <div class="vehicle-grid" id="riderVehicleGrid">
+          <div class="vehicle-card" onclick="selectVehicle('bike', this)">
+            <i class="fas fa-motorcycle"></i>
+            <div class="vehicle-name">Moto Taxi</div>
+            <div class="vehicle-fare" id="v-fare-bike">₹110</div>
+            <div class="vehicle-eta">3 mins</div>
+          </div>
+          <div class="vehicle-card" onclick="selectVehicle('auto', this)">
+            <i class="fas fa-bus-simple"></i>
+            <div class="vehicle-name">Auto</div>
+            <div class="vehicle-fare" id="v-fare-auto">₹155</div>
+            <div class="vehicle-eta">4 mins</div>
+          </div>
+          <div class="vehicle-card active" onclick="selectVehicle('mini', this)">
+            <i class="fas fa-car-side"></i>
+            <div class="vehicle-name">Mini AC</div>
+            <div class="vehicle-fare" id="v-fare-mini">₹215</div>
+            <div class="vehicle-eta">5 mins</div>
+          </div>
+          <div class="vehicle-card" onclick="selectVehicle('sedan', this)">
+            <i class="fas fa-car"></i>
+            <div class="vehicle-name">Sedan</div>
+            <div class="vehicle-fare" id="v-fare-sedan">₹275</div>
+            <div class="vehicle-eta">6 mins</div>
+          </div>
+          <div class="vehicle-card" onclick="selectVehicle('suv', this)">
+            <i class="fas fa-van-shuttle"></i>
+            <div class="vehicle-name">SUV XL</div>
+            <div class="vehicle-fare" id="v-fare-suv">₹360</div>
+            <div class="vehicle-eta">8 mins</div>
+          </div>
+        </div>
+
+        <!-- Fare Breakdown -->
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.88rem;">
+            <span style="color: var(--text-muted);">Estimated Distance:</span>
+            <span style="font-weight: 700;" id="tripDistDisplay">14.5 km</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.88rem;">
+            <span style="color: var(--text-muted);">Est. Travel Time:</span>
+            <span style="font-weight: 700;" id="tripTimeDisplay">32 mins</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.88rem;">
+            <span style="color: var(--text-muted);">GST (5%):</span>
+            <span style="font-weight: 700;" id="tripGstDisplay">₹10.25</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 800; border-top: 1px solid var(--border-color); padding-top: 8px;">
+            <span>Total Payable:</span>
+            <span style="color: var(--secondary);" id="tripTotalDisplay">₹215</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block btn-lg" id="bookRideBtn" onclick="requestRideBooking()">
+          <i class="fas fa-bolt"></i> Confirm & Request Ride
+        </button>
+
+        <!-- Active Ride Card (Hidden by default) -->
+        <div id="activeRideCard" class="active-trip-card" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span class="badge badge-green"><span class="pulse-dot"></span> <span id="rideStatusText">Driver Assigned</span></span>
+            <span style="font-weight: 800; color: #fff;" id="rideFareText">₹215</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700; font-size: 1rem;" id="driverNameText">Vikram Singh Gurjar</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);" id="driverCarText">Maruti Dzire • <b style="color: #fff;">DL 01 AZ 4521</b></div>
+              <div style="font-size: 0.82rem; color: #f59e0b;"><i class="fas fa-star"></i> 4.92 (1,420 trips)</div>
+            </div>
+          </div>
+
+          <!-- PIN Security Display -->
+          <div class="pin-display">
+            <div style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">Share Start OTP With Driver</div>
+            <div class="pin-code" id="rideOtpText">4592</div>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary btn-block btn-sm" onclick="openPaymentModal()">
+              <i class="fas fa-qrcode"></i> Pay (UPI/Cash)
+            </button>
+            <button class="btn btn-danger btn-block btn-sm" onclick="cancelActiveRide()">
+              <i class="fas fa-times"></i> Cancel Ride
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Scheduled Rides (Requirement 16) -->
+      <div id="tab-scheduled" class="tab-content">
+        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Schedule a Ride</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;">
+          Book rides up to 7 days in advance. Free cancellation up to 1 hour before pickup.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Pickup Location</label>
+          <input type="text" id="schedPickup" class="form-control" value="Connaught Place (CP), Central Delhi">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Destination</label>
+          <input type="text" id="schedDropoff" class="form-control" value="Indira Gandhi International Airport (IGI)">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="schedDate" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time</label>
+            <input type="time" id="schedTime" class="form-control" value="09:30">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Vehicle Preference</label>
+          <select id="schedVehicle" class="form-control">
+            <option value="sedan">Prime Sedan (Comfort & Luggage)</option>
+            <option value="suv">SUV XL (6-Seater)</option>
+            <option value="mini">Mini Hatchback (Budget AC)</option>
+          </select>
+        </div>
+
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md); padding: 12px; margin-bottom: 18px; font-size: 0.82rem; color: #fcd34d;">
+          <i class="fas fa-circle-info" style="margin-right: 6px;"></i>
+          <b>Cancellation Policy:</b> Free cancellation up to 1 hour prior. If cancelled within 1 hour, standard fee of ₹30 applies.
+        </div>
+
+        <button class="btn btn-primary btn-block btn-lg" onclick="createScheduledTrip()">
+          <i class="fas fa-calendar-plus"></i> Confirm Scheduled Booking
+        </button>
+
+        <h4 style="margin-top: 28px; margin-bottom: 12px; font-size: 1rem;">Your Upcoming Scheduled Rides</h4>
+        <div id="scheduledRidesList">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- TAB 3: Parcel Courier Delivery (Requirement 17) -->
+      <div id="tab-parcel" class="tab-content">
+        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">P2P Parcel Courier</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;">
+          Fast peer-to-peer parcel delivery across town with photo pickup & recipient signature.
+        </p>
+
+        <!-- Parcel Size Selector -->
+        <label class="form-label">Select Package Size</label>
+        <div class="parcel-size-card active" onclick="selectParcelSize('small', this)">
+          <div>
+            <div style="font-weight: 700; color: #fff;">Small Parcel (Up to 5 kg)</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Documents, food, keys, apparel</div>
+          </div>
+          <div style="font-weight: 800; color: var(--secondary);">₹40 base + ₹8/km</div>
+        </div>
+
+        <div class="parcel-size-card" onclick="selectParcelSize('medium', this)">
+          <div>
+            <div style="font-weight: 700; color: #fff;">Medium Parcel (5 to 15 kg)</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Electronics, gift cartons, appliances</div>
+          </div>
+          <div style="font-weight: 800; color: var(--secondary);">₹60 base + ₹10/km</div>
+        </div>
+
+        <div class="parcel-size-card" onclick="selectParcelSize('large', this)">
+          <div>
+            <div style="font-weight: 700; color: #fff;">Large Parcel (15 to 30 kg)</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Luggage, heavy boxes (Max 30kg)</div>
+          </div>
+          <div style="font-weight: 800; color: var(--secondary);">₹80 base + ₹12/km</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Package Description</label>
+          <input type="text" id="parcelDesc" class="form-control" placeholder="e.g., Office Laptop & Project Files" value="Urgent Contract Documents">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">Recipient Name</label>
+            <input type="text" id="parcelRecipientName" class="form-control" value="Neha Sharma">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Recipient Phone</label>
+            <input type="tel" id="parcelRecipientPhone" class="form-control" value="+91 98111 55443">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 18px; margin-bottom: 18px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer;">
+            <input type="checkbox" id="parcelFragile">
+            <span>Fragile (+₹20)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; cursor: pointer;">
+            <input type="checkbox" id="parcelUrgent" checked>
+            <span>Urgent Delivery (+₹25)</span>
+          </label>
+        </div>
+
+        <button class="btn btn-success btn-block btn-lg" onclick="bookParcelDelivery()">
+          <i class="fas fa-truck-fast"></i> Book Parcel Courier
+        </button>
+
+        <h4 style="margin-top: 28px; margin-bottom: 12px; font-size: 1rem;">Parcel Delivery History</h4>
+        <div id="parcelHistoryList">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- TAB 4: Outstation Intercity -->
+      <div id="tab-outstation" class="tab-content">
+        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Highway Outstation Cabs</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;">
+          Travel comfortably between Indian cities with verified highway captains.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Select Popular Intercity Corridor</label>
+          <select id="outstationCorridorSelect" class="form-control" onchange="onCorridorSelected(this.value)">
+            <option value="delhi-agra">Delhi NCR ➔ Agra (Taj Expressway) [210 km • Toll ₹415]</option>
+            <option value="delhi-jaipur">Delhi NCR ➔ Jaipur (Pink City) [280 km • Toll ₹360]</option>
+            <option value="mumbai-pune">Mumbai ➔ Pune Expressway [150 km • Toll ₹320]</option>
+            <option value="blr-mysuru">Bengaluru ➔ Mysuru Expressway [140 km • Toll ₹320]</option>
+            <option value="indore-ujjain">Indore ➔ Ujjain (Mahakal Darshan) [55 km • Toll ₹80]</option>
+            <option value="indore-bhopal">Indore ➔ Bhopal Highway [190 km • Toll ₹240]</option>
+            <option value="chennai-pondy">Chennai ➔ Puducherry (ECR Coastal) [150 km • Toll ₹120]</option>
+            <option value="ahmedabad-udaipur">Ahmedabad ➔ Udaipur [260 km • Toll ₹320]</option>
+          </select>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 18px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--text-muted);">Highway Distance:</span>
+            <span style="font-weight: 700;" id="corridorDist">210 km</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--text-muted);">Fastag Toll (Est.):</span>
+            <span style="font-weight: 700;" id="corridorToll">₹415</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span style="color: var(--text-muted);">Driver Allowance:</span>
+            <span style="font-weight: 700;">Included</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 1.15rem; font-weight: 800; border-top: 1px solid var(--border-color); padding-top: 10px;">
+            <span>Outstation Sedan Fare:</span>
+            <span style="color: var(--secondary);" id="corridorFare">₹2,850</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-block btn-lg" onclick="bookOutstationRide()">
+          <i class="fas fa-route"></i> Book Outstation Ride
+        </button>
+      </div>
+
+      <!-- TAB 5: History -->
+      <div id="tab-history" class="tab-content">
+        <h3 style="font-size: 1.2rem; margin-bottom: 6px;">Your Ride History</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 18px;">
+          View past invoices, receipts, and rate previous captains.
+        </p>
+
+        <div id="fullHistoryContainer">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Interactive Leaflet Map -->
+    <div id="map-container">
+      <div id="map"></div>
+
+      <!-- City Quick Switcher Badge Overlay on Map -->
+      <div class="map-city-picker">
+        <span class="pulse-dot"></span>
+        <span style="font-size: 0.85rem; font-weight: 700;" id="mapCityIndicator">Delhi NCR</span>
+        <span style="color: var(--text-dim); font-size: 0.78rem;">| 5 Captains Nearby</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOS Emergency Floating Button (Requirement 11) -->
+  <button class="sos-float-btn" onclick="openSosModal()" title="Emergency SOS Protocol">
+    <i class="fas fa-triangle-exclamation"></i>
+    <span>EMERGENCY SOS</span>
+  </button>
+
+  <!-- SOS Emergency Modal -->
+  <div id="sosModal" class="modal-overlay">
+    <div class="modal-content" style="border-color: var(--danger);">
+      <div class="modal-header" style="background: rgba(239, 68, 68, 0.15);">
+        <h3 style="color: var(--danger);"><i class="fas fa-bell"></i> 24x7 Emergency SOS</h3>
+        <button class="close-btn" onclick="closeSosModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px; font-size: 0.95rem;">
+          Triggering this protocol activates immediate Indian emergency safety measures:
+        </p>
+        <div style="background: rgba(239, 68, 68, 0.08); border-radius: var(--radius-md); padding: 14px; margin-bottom: 18px;">
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.88rem;">
+            <li><i class="fas fa-check-circle" style="color: var(--danger); margin-right: 8px;"></i> <b>112 ERSS:</b> National Emergency Response System alerted</li>
+            <li><i class="fas fa-check-circle" style="color: var(--danger); margin-right: 8px;"></i> <b>100 Police:</b> Nearest PCR patrol car dispatched</li>
+            <li><i class="fas fa-check-circle" style="color: var(--danger); margin-right: 8px;"></i> <b>1091 Helpline:</b> Women safety command notified</li>
+            <li><i class="fas fa-check-circle" style="color: var(--danger); margin-right: 8px;"></i> <b>SMS / WhatsApp:</b> Live GPS link broadcasted to contacts</li>
+          </ul>
+        </div>
+        <button class="btn btn-danger btn-block btn-lg" onclick="triggerSosProtocol()">
+          <i class="fas fa-triangle-exclamation"></i> ACTIVATE SOS NOW
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" onclick="closeSosModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Indian Payment & GST Modal (Requirement 6) -->
+  <div id="paymentModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-wallet" style="color: var(--secondary); margin-right: 8px;"></i> Indian Payment & UPI</h3>
+        <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 0.9rem; color: var(--text-muted);">Amount Due</div>
+          <div style="font-size: 2.2rem; font-weight: 900; color: var(--secondary);" id="payModalAmount">₹215.00</div>
+          <div style="font-size: 0.78rem; color: var(--text-dim);">Includes 5% Transport GST (SAC: 9964)</div>
+        </div>
+
+        <!-- Dynamic UPI QR -->
+        <div style="background: #ffffff; border-radius: var(--radius-md); padding: 16px; width: 190px; margin: 0 auto 16px; text-align: center;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=rideconnect.india@icici%26pn=RideConnect%26am=215.00%26cu=INR" alt="UPI QR" style="width: 160px; height: 160px; display: block;">
+          <div style="color: #0f172a; font-size: 0.75rem; font-weight: 700; margin-top: 6px;">Scan with GPay / PhonePe / Paytm</div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Or Pay via UPI VPA / ID</label>
+          <div class="input-wrapper">
+            <i class="fas fa-at input-icon"></i>
+            <input type="text" class="form-control" id="upiVpaInput" placeholder="username@okhdfcbank" value="aarav.patel@okicici">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 14px;">
+          <button class="btn btn-success btn-block" onclick="completePayment('UPI')">
+            <i class="fas fa-check"></i> Pay ₹215 via UPI
+          </button>
+          <button class="btn btn-secondary btn-block" onclick="completePayment('CASH')">
+            <i class="fas fa-money-bill-1-wave"></i> Pay Cash to Driver
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- App Scripts -->
+  <script src="js/india-cities.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/map-manager.js"></script>
+  <script src="js/rider.js"></script>
+</body>
+</html>

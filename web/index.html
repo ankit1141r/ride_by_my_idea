@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RideConnect India — Pan-India Ride-Hailing, Scheduled Trips & Courier Deliveries</title>
+  
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <style>
+    .hero {
+      position: relative;
+      padding: 90px 0 70px;
+      overflow: hidden;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 40px;
+      align-items: center;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #ff8c33 0%, #ffffff 50%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+      max-width: 580px;
+    }
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 34px;
+    }
+    .portal-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin: 60px 0;
+    }
+    .portal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 30px 24px;
+      text-align: center;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .portal-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255, 255, 255, 0.25);
+      background: var(--bg-card-hover);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.5);
+    }
+    .portal-card:hover::before {
+      opacity: 1;
+    }
+    .portal-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin-bottom: 18px;
+    }
+    .icon-rider { background: rgba(255, 107, 0, 0.15); color: var(--primary); }
+    .icon-driver { background: rgba(16, 185, 129, 0.15); color: var(--secondary); }
+    .icon-admin { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin: 40px 0;
+    }
+    .feature-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      transition: var(--transition);
+    }
+    .feature-box:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .feature-box i {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 14px;
+      display: block;
+    }
+    .cities-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .cities-table th, .cities-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .cities-table th {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .portal-cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="brand">
+        <i class="fas fa-location-arrow"></i>
+        <span>RideConnect</span>
+        <span class="brand-badge">All India 🇮🇳</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link active"><i class="fas fa-house"></i> Home</a></li>
+        <li><a href="rider.html" class="nav-link"><i class="fas fa-car-side"></i> Rider App</a></li>
+        <li><a href="driver.html" class="nav-link"><i class="fas fa-id-card"></i> Driver App</a></li>
+        <li><a href="admin.html" class="nav-link"><i class="fas fa-gauge-high"></i> Admin Hub</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="btn btn-secondary btn-sm" onclick="openDemoLoginModal()">
+          <i class="fas fa-user-lock"></i> 1-Click Login
+        </button>
+        <a href="rider.html" class="btn btn-primary btn-sm">
+          <i class="fas fa-bolt"></i> Book Now
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="hero-badges">
+          <span class="badge badge-saffron"><i class="fas fa-map-marked-alt"></i> 50+ Cities Nationwide</span>
+          <span class="badge badge-green"><i class="fas fa-shield-halved"></i> 100% Verified Drivers</span>
+          <span class="badge badge-blue"><i class="fas fa-qrcode"></i> UPI & Cash Supported</span>
+        </div>
+
+        <h1 class="hero-title">
+          Connecting <span class="gradient-text">All of India</span>, One Ride at a Time.
+        </h1>
+
+        <p class="hero-subtitle">
+          From Delhi to Bengaluru, Mumbai to Kolkata, and Indore to Kochi — book immediate city cabs, auto-rickshaws, moto taxis, advance scheduled trips, or send door-to-door courier parcels across India.
+        </p>
+
+        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+          <a href="rider.html" class="btn btn-primary btn-lg">
+            <i class="fas fa-location-dot"></i> Book a Ride Now
+          </a>
+          <a href="driver.html" class="btn btn-secondary btn-lg">
+            <i class="fas fa-steering-wheel"></i> Drive & Earn (₹30k+/mo)
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Interactive Fare Estimator Card -->
+      <div class="glass-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h3 style="font-size:1.25rem;"><i class="fas fa-calculator" style="color:var(--primary); margin-right:8px;"></i> Instant Fare Estimator</h3>
+          <span class="badge badge-green"><span class="pulse-dot"></span> Live Rates</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Select City</label>
+          <div class="input-wrapper">
+            <i class="fas fa-city input-icon"></i>
+            <select id="homeCitySelect" class="form-control" onchange="updateHomeLandmarks()">
+              <option value="delhi">Delhi NCR (Capital Region)</option>
+              <option value="mumbai">Mumbai Metropolitan (Maharashtra)</option>
+              <option value="bengaluru">Bengaluru (Karnataka)</option>
+              <option value="hyderabad">Hyderabad (Telangana)</option>
+              <option value="indore">Indore (Madhya Pradesh)</option>
+              <option value="chennai">Chennai (Tamil Nadu)</option>
+              <option value="kolkata">Kolkata (West Bengal)</option>
+              <option value="pune">Pune (Maharashtra)</option>
+              <option value="ahmedabad">Ahmedabad (Gujarat)</option>
+              <option value="jaipur">Jaipur (Rajasthan)</option>
+              <option value="lucknow">Lucknow (Uttar Pradesh)</option>
+              <option value="chandigarh">Chandigarh Tricity</option>
+              <option value="bhopal">Bhopal (Madhya Pradesh)</option>
+              <option value="kochi">Kochi (Kerala)</option>
+              <option value="goa">Goa (Coastal Tourist Zone)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pickup Location</label>
+          <div class="input-wrapper">
+            <i class="fas fa-circle-dot input-icon" style="color:var(--secondary);"></i>
+            <select id="homePickupSelect" class="form-control"></select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Destination</label>
+          <div class="input-wrapper">
+            <i class="fas fa-location-dot input-icon" style="color:var(--danger);"></i>
+            <select id="homeDropoffSelect" class="form-control"></select>
+          </div>
+        </div>
+
+        <!-- Vehicle Type Selector -->
+        <label class="form-label">Vehicle Class</label>
+        <div class="vehicle-grid" id="homeVehicleGrid">
+          <div class="vehicle-card" onclick="selectHomeVehicle('bike', this)">
+            <i class="fas fa-motorcycle"></i>
+            <div class="vehicle-name">Moto Taxi</div>
+            <div class="vehicle-fare" id="fare-bike">₹110</div>
+          </div>
+          <div class="vehicle-card" onclick="selectHomeVehicle('auto', this)">
+            <i class="fas fa-bus-simple"></i>
+            <div class="vehicle-name">Auto</div>
+            <div class="vehicle-fare" id="fare-auto">₹155</div>
+          </div>
+          <div class="vehicle-card active" onclick="selectHomeVehicle('mini', this)">
+            <i class="fas fa-car-side"></i>
+            <div class="vehicle-name">Mini AC</div>
+            <div class="vehicle-fare" id="fare-mini">₹215</div>
+          </div>
+          <div class="vehicle-card" onclick="selectHomeVehicle('sedan', this)">
+            <i class="fas fa-car"></i>
+            <div class="vehicle-name">Prime Sedan</div>
+            <div class="vehicle-fare" id="fare-sedan">₹275</div>
+          </div>
+          <div class="vehicle-card" onclick="selectHomeVehicle('suv', this)">
+            <i class="fas fa-van-shuttle"></i>
+            <div class="vehicle-name">SUV XL</div>
+            <div class="vehicle-fare" id="fare-suv">₹360</div>
+          </div>
+        </div>
+
+        <a href="rider.html" class="btn btn-primary btn-block">
+          <i class="fas fa-arrow-right"></i> Book in Rider Dashboard
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Portals Grid -->
+  <section class="container">
+    <div style="text-align: center; margin-bottom: 30px;">
+      <span class="badge badge-saffron">Access Platforms</span>
+      <h2 style="font-size: 2.2rem; margin-top: 10px;">Choose Your Portal</h2>
+      <p style="color: var(--text-muted);">Dedicated portals tailored for riders, driver partners, and dispatcher admins.</p>
+    </div>
+
+    <div class="portal-cards">
+      <!-- Rider Portal -->
+      <div class="portal-card">
+        <div class="portal-icon icon-rider"><i class="fas fa-user"></i></div>
+        <h3 style="margin-bottom: 8px;">Rider Web App</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+          Book instant rides, schedule future trips up to 7 days ahead, send courier parcels, and track live drivers on GPS.
+        </p>
+        <a href="rider.html" class="btn btn-primary btn-block">
+          <i class="fas fa-car"></i> Launch Rider Portal
+        </a>
+      </div>
+
+      <!-- Driver Portal -->
+      <div class="portal-card">
+        <div class="portal-icon icon-driver"><i class="fas fa-id-card"></i></div>
+        <h3 style="margin-bottom: 8px;">Driver Partner Dashboard</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+          Go Online, accept ride & parcel requests with 30s timer, manage extended-area preferences, and track daily earnings.
+        </p>
+        <a href="driver.html" class="btn btn-success btn-block">
+          <i class="fas fa-steering-wheel"></i> Launch Driver Portal
+        </a>
+      </div>
+
+      <!-- Admin Portal -->
+      <div class="portal-card">
+        <div class="portal-icon icon-admin"><i class="fas fa-shield-halved"></i></div>
+        <h3 style="margin-bottom: 8px;">Pan-India Control Center</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px;">
+          Nationwide fleet monitoring, city-wise ride analytics, driver KYC document verification, and live SOS alert console.
+        </p>
+        <a href="admin.html" class="btn btn-secondary btn-block">
+          <i class="fas fa-gauge-high"></i> Launch Admin Center
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Complete Feature Matrix -->
+  <section class="container" style="padding: 40px 20px;">
+    <div style="text-align: center; margin-bottom: 40px;">
+      <span class="badge badge-green">Feature Matrix</span>
+      <h2 style="font-size: 2.2rem; margin-top: 10px;">Everything Built For India</h2>
+      <p style="color: var(--text-muted);">All 18 core requirements fully implemented with Indian transport realities in mind.</p>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-box">
+        <i class="fas fa-bolt"></i>
+        <h4>1. Instant Pan-India Rides</h4>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+          Book in seconds with Auto-Rickshaw, Moto, Mini, Sedan, and SUV options with 4-digit security PIN verification.
+        </p>
+      </div>
+
+      <div class="feature-box">
+        <i class="fas fa-calendar-days"></i>
+        <h4>2. Scheduled Trips (Req 16)</h4>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+          Plan up to 7 days ahead. Free cancellation up to 1 hour before pickup; nominal ₹30 fee within 1 hour.
+        </p>
+      </div>
+
+      <div class="feature-box">
+        <i class="fas fa-box-open"></i>
+        <h4>3. P2P Parcel Delivery (Req 17)</h4>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+          Send small (<=5kg), medium (5-15kg), and large (15-30kg) parcels with pickup photo upload & digital recipient signature.
+        </p>
+      </div>
+
+      <div class="feature-box">
+        <i class="fas fa-road"></i>
+        <h4>4. Highway Outstation</h4>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+          Intercity corridor booking (Delhi-Agra, Mumbai-Pune, Bangalore-Mysore, Indore-Ujjain) with toll estimation.
+        </p>
+      </div>
+
+      <div class="feature-box">
+        <i class="fas fa-bell-slash" style="color:var(--danger);"></i>
+        <h4>5. Emergency SOS System (Req 11)</h4>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+          1-click SOS button alerts National Emergency (112), Police (100), and broadcasts live WhatsApp GPS tracking.
+        </p>
+      </div>
+
+      <div class="feature-box">
+        <i class="fas fa-qrcode" style="color:var(--secondary);"></i>
+        <h4>6. UPI & Digital Payments</h4>
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-top:8px;">
+          Dynamic UPI QR generation for GPay, PhonePe, Paytm, BHIM, RuPay cards, Cash, and 5% GST tax receipts.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1-Click Demo Login Modal -->
+  <div id="demoLoginModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><i class="fas fa-user-lock" style="color:var(--primary); margin-right:8px;"></i> 1-Click Demo Logins</h3>
+        <button class="close-btn" onclick="closeDemoLoginModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:18px;">
+          Select a pre-seeded account to experience the portal instantly:
+        </p>
+
+        <!-- Rider Demo -->
+        <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; cursor:pointer;" onclick="quickLogin('rider')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; color:#fff;">Aarav Patel (Rider)</div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">Phone: +91 98765 43210 • Mumbai</div>
+            </div>
+            <span class="btn btn-primary btn-sm">Use Rider</span>
+          </div>
+        </div>
+
+        <!-- Driver Demo -->
+        <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; margin-bottom:12px; cursor:pointer;" onclick="quickLogin('driver')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; color:#fff;">Vikram Singh Gurjar (Driver)</div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">Maruti Dzire (DL 01 AZ 4521) • Delhi</div>
+            </div>
+            <span class="btn btn-success btn-sm">Use Driver</span>
+          </div>
+        </div>
+
+        <!-- Admin Demo -->
+        <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px; cursor:pointer;" onclick="quickLogin('admin')">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; color:#fff;">Rajesh Sharma (Admin)</div>
+              <div style="font-size:0.82rem; color:var(--text-muted);">National Operations Dispatcher</div>
+            </div>
+            <span class="btn btn-secondary btn-sm">Use Admin</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" onclick="closeDemoLoginModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/india-cities.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    function updateHomeLandmarks() {
+      const cityKey = document.getElementById('homeCitySelect').value;
+      const city = INDIA_CITIES[cityKey] || INDIA_CITIES['delhi'];
+      const pickupSelect = document.getElementById('homePickupSelect');
+      const dropoffSelect = document.getElementById('homeDropoffSelect');
+      
+      pickupSelect.innerHTML = '';
+      dropoffSelect.innerHTML = '';
+
+      city.landmarks.forEach((lm, idx) => {
+        const opt1 = document.createElement('option');
+        opt1.value = lm.name;
+        opt1.textContent = lm.name;
+        pickupSelect.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = lm.name;
+        opt2.textContent = lm.name;
+        dropoffSelect.appendChild(opt2);
+      });
+
+      // Default dropoff to second landmark
+      if (dropoffSelect.options.length > 1) {
+        dropoffSelect.selectedIndex = 1;
+      }
+    }
+
+    let selectedVehicle = 'mini';
+    function selectHomeVehicle(vType, element) {
+      selectedVehicle = vType;
+      document.querySelectorAll('#homeVehicleGrid .vehicle-card').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+    }
+
+    function openDemoLoginModal() {
+      document.getElementById('demoLoginModal').classList.add('active');
+    }
+
+    function closeDemoLoginModal() {
+      document.getElementById('demoLoginModal').classList.remove('active');
+    }
+
+    async function quickLogin(role) {
+      if (role === 'rider') {
+        await api.login('+91 98765 43210', 'riderpassword123');
+        window.location.href = 'rider.html';
+      } else if (role === 'driver') {
+        await api.login('+91 98111 22334', 'driverpassword123');
+        window.location.href = 'driver.html';
+      } else if (role === 'admin') {
+        await api.login('+91 98765 00001', 'adminpassword123');
+        window.location.href = 'admin.html';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateHomeLandmarks();
+    });
+  </script>
+</body>
+</html>
